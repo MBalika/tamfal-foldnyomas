@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<title>Támfal földnyomás — Rankine & Coulomb · Interaktív segédanyag</title>
+<title>Súlytámfal földnyomás — Rankine & Coulomb · Interaktív segédanyag</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -115,7 +115,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </head>
 <body>
 <nav>
-  <span class="nav-logo">Támfal földnyomás</span>
+  <span class="nav-logo">Súlytámfal földnyomás</span>
   <div class="nav-links">
     <a class="nav-link" href="#alap">Alapok</a>
     <a class="nav-link" href="#allapot">Aktív / passzív</a>
@@ -129,8 +129,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 
 <header class="hero">
   <div class="hero-eyebrow">Talajmechanika · Interaktív segédanyag</div>
-  <h1>Támfal földnyomás<br><span class="thin">— Rankine & Coulomb</span></h1>
-  <p class="hero-sub">Mekkora erővel nyomja a talaj a támfalat — és <strong>mikor borul fel vagy csúszik el</strong>? A földnyomás attól függ, merre és mennyit mozdul a fal: ha <strong>elenged</strong>, aktív; ha <strong>nekifeszül</strong>, passzív. Lent élő szimulátorban állíthatod a falat és a talajt, és nézheted a nyomásábrát meg a biztonsági tényezőket.</p>
+  <h1>Súlytámfal földnyomás<br><span class="thin">— Rankine & Coulomb</span></h1>
+  <p class="hero-sub">Mekkora erővel nyomja a talaj a súlytámfalat — és <strong>mikor borul fel vagy csúszik el</strong>? A földnyomás attól függ, merre és mennyit mozdul a fal: ha <strong>elenged</strong>, aktív; ha <strong>nekifeszül</strong>, passzív. Lent élő szimulátorban állíthatod a falat és a talajt, és nézheted a nyomásábrát meg a biztonsági tényezőket.</p>
   <div class="hero-eq">P<sub>a</sub> = ½ · K<sub>a</sub> · γ · H²
     <small>Az aktív földnyomás eredője háromszög-megoszlásnál a&nbsp;fal magasságának négyzetével nő. K<sub>a</sub> az aktív földnyomási együttható (φ′-től, a&nbsp;háttöltés lejtésétől és a&nbsp;falsúrlódástól függ).</small>
   </div>
@@ -141,7 +141,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 <section id="alap" class="reveal">
   <div class="eyebrow">1 · Alapfogalmak</div>
   <h2>Mi a földnyomás?</h2>
-  <p class="lead">A háttöltés a&nbsp;saját súlyából (és a&nbsp;felszíni terhekből) <strong>vízszintes nyomást</strong> fejt ki a&nbsp;támfalra. Ez a&nbsp;vízszintes feszültség a&nbsp;függőleges feszültség és egy <strong>földnyomási együttható</strong> (K) szorzata: σ<sub>h</sub> = K·σ′<sub>v</sub>. Hogy K mekkora, azt elsősorban az&nbsp;dönti el, <strong>mennyit és merre mozdul a&nbsp;fal</strong>.</p>
+  <p class="lead">A háttöltés a&nbsp;saját súlyából (és a&nbsp;felszíni terhekből) <strong>vízszintes nyomást</strong> fejt ki a&nbsp;súlytámfalra. Ez a&nbsp;vízszintes feszültség a&nbsp;függőleges feszültség és egy <strong>földnyomási együttható</strong> (K) szorzata: σ<sub>h</sub> = K·σ′<sub>v</sub>. Hogy K mekkora, azt elsősorban az&nbsp;dönti el, <strong>mennyit és merre mozdul a&nbsp;fal</strong>.</p>
   <div class="cards">
     <div class="card"><h4><span class="dot active"></span>Aktív (K<sub>a</sub>)</h4><p>A fal kissé <strong>elmozdul a&nbsp;talajtól</strong> → a&nbsp;talaj megnyugszik, a&nbsp;nyomás a&nbsp;legkisebb. Tervezéskor jellemzően ezzel számolunk a&nbsp;háttöltés felől.</p></div>
     <div class="card"><h4><span class="dot rest"></span>Nyugalmi (K<sub>0</sub>)</h4><p>A fal <strong>nem mozdul</strong> (merev, megtámasztott). K<sub>0</sub> ≈ 1 − sinφ′. Aktív és passzív között.</p></div>
@@ -181,18 +181,18 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   <div class="formula">K<sub>a</sub> = cos²φ′ / { cosδ · [ 1 + √( sin(φ′+δ)·sin(φ′−β) / (cosδ·cosβ) ) ]² }
     <small>Az eredő a&nbsp;falhát normálisához képest δ szöggel hajlik (a&nbsp;falsúrlódás miatt), így van egy <strong>függőleges összetevője</strong> is, ami stabilizál. A&nbsp;falsúrlódás csökkenti az&nbsp;aktív nyomást.</small>
   </div>
-  <div class="note warn"><strong>Mikor melyik?</strong> Rankine egyszerű, sima falra jó. Coulomb a&nbsp;falsúrlódással reálisabb (kisebb aktív nyomást ad), ezért gravitációs támfalaknál gyakran ezt használják. A&nbsp;passzív oldalon a&nbsp;Coulomb nagy δ-nál túlbecsülhet — óvatosan.</div>
+  <div class="note warn"><strong>Mikor melyik?</strong> Rankine egyszerű, sima falra jó. Coulomb a&nbsp;falsúrlódással reálisabb (kisebb aktív nyomást ad), ezért súlytámfalaknál gyakran ezt használják. A&nbsp;passzív oldalon a&nbsp;Coulomb nagy δ-nál túlbecsülhet — óvatosan.</div>
 </section>
 
 <section id="allekonysag" class="reveal">
   <div class="eyebrow">5 · Mikor megy tönkre?</div>
-  <h2>A támfal állékonysága</h2>
-  <p class="lead">Egy gravitációs támfalnak a&nbsp;földnyomással szemben a&nbsp;<strong>saját súlya</strong> tart ellen. Két fő tönkremeneteli mód:</p>
+  <h2>A súlytámfal állékonysága</h2>
+  <p class="lead">Egy súlytámfalnak a&nbsp;földnyomással szemben a&nbsp;<strong>saját súlya</strong> tart ellen. Két fő tönkremeneteli mód:</p>
   <div class="cards">
     <div class="card"><h4>Felborulás</h4><p>A fal a&nbsp;<strong>lábéle (toe) körül</strong> billen. F<sub>borulás</sub> = stabilizáló nyomaték / borító nyomaték = W·(kar) / (P<sub>h</sub>·z̄). Elvárt: F ≥ 1,5.</p></div>
     <div class="card"><h4>Elcsúszás</h4><p>A fal a&nbsp;<strong>talpán megcsúszik</strong>. F<sub>csúszás</sub> = talp-súrlódás / vízszintes földnyomás = (W+P<sub>v</sub>)·tanδ<sub>talp</sub> / P<sub>h</sub>. Elvárt: F ≥ 1,5.</p></div>
   </div>
-  <p>A&nbsp;<strong>víz</strong> a&nbsp;háttöltésben külön (hidrosztatikus) nyomást ad a&nbsp;földnyomáshoz — ezért fontos a&nbsp;támfal mögötti <strong>vízelvezetés</strong> (dréncső, szivárgó). A&nbsp;<strong>felszíni teher</strong> (q) a&nbsp;háttöltésen szintén növeli a&nbsp;nyomást.</p>
+  <p>A&nbsp;<strong>víz</strong> a&nbsp;háttöltésben külön (hidrosztatikus) nyomást ad a&nbsp;földnyomáshoz — ezért fontos a&nbsp;súlytámfal mögötti <strong>vízelvezetés</strong> (dréncső, szivárgó). A&nbsp;<strong>felszíni teher</strong> (q) a&nbsp;háttöltésen szintén növeli a&nbsp;nyomást.</p>
 </section>
 
 <section id="szimulator" class="reveal">
@@ -202,7 +202,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   <div class="panel">
     <div class="sim">
       <div>
-        <div class="svg-wrap"><svg id="simSvg" viewBox="0 0 560 400" role="img" aria-label="Támfal földnyomás szimulátor"></svg></div>
+        <div class="svg-wrap"><svg id="simSvg" viewBox="0 0 560 400" role="img" aria-label="Súlytámfal földnyomás szimulátor"></svg></div>
         <div class="btn-row">
           <button class="btn" id="overturnBtn">▶ Felborulás</button>
           <button class="btn" id="slideBtn">▶ Elcsúszás</button>
@@ -265,7 +265,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 
 </main>
 <footer>
-  Támfal földnyomás — Rankine & Coulomb · interaktív tananyag · Talajmechanika · oktatási célra. A&nbsp;szimulátor egyszerűsített (merev gravitációs fal, egyréteges háttöltés, hidrosztatikus víz); valós tervezés: MSZ EN 1997 (EC7).
+  Súlytámfal földnyomás — Rankine & Coulomb · interaktív tananyag · Talajmechanika · oktatási célra. A&nbsp;szimulátor egyszerűsített (merev gravitációs fal, egyréteges háttöltés, hidrosztatikus víz); valós tervezés: MSZ EN 1997 (EC7).
 </footer>
 
 <script>
@@ -520,9 +520,9 @@ $("slideBtn").addEventListener('click',()=>{
    {q:"Mit vesz figyelembe a Coulomb-elmélet, amit a Rankine (alapváltozat) nem?",o:["A talaj súlyát","A fal és talaj közti súrlódást (δ)","A vizet","A kohéziót"],c:1,e:"Coulomb a falsúrlódást (δ), a ferde falhátat és a ferde háttöltést is kezeli; emiatt kisebb (reálisabb) aktív nyomást ad."},
    {q:"Hogyan hat a falsúrlódás (δ) az aktív földnyomásra?",o:["Növeli","Csökkenti","Nincs hatása","Megszünteti"],c:1,e:"A falsúrlódás csökkenti az aktív nyomást, és az eredőnek függőleges összetevőt ad, ami stabilizálja a falat."},
    {q:"Mi a húzott repedés (tension crack) a kohéziós háttöltés tetején?",o:["A fal repedése","Ahol az aktív nyomás negatív lenne, ezért zérusnak vesszük (z_c = 2c/(γ√Ka))","A víz nyoma","A talp repedése"],c:1,e:"Kohéziónál σ_a = K_a·σ′_v − 2c√K_a; a tetőn ez negatív (húzás) lenne, amit a talaj nem vesz fel → repedés z_c mélységig."},
-   {q:"Mi a gravitációs támfal két fő tönkremeneteli módja a földnyomással szemben?",o:["Olvadás és fagyás","Felborulás és elcsúszás","Zsugorodás és duzzadás","Korrózió"],c:1,e:"Felborulás a lábél körül, és elcsúszás a talpon. (Plusz: talajtörés és globális rézsűcsúszás.)"},
+   {q:"Mi a súlytámfal két fő tönkremeneteli módja a földnyomással szemben?",o:["Olvadás és fagyás","Felborulás és elcsúszás","Zsugorodás és duzzadás","Korrózió"],c:1,e:"Felborulás a lábél körül, és elcsúszás a talpon. (Plusz: talajtörés és globális rézsűcsúszás.)"},
    {q:"A felborulási biztonsági tényező:",o:["W·tanφ / P_h","stabilizáló nyomaték / borító nyomaték","P_h / W","K_a / K_p"],c:1,e:"F_borulás = M_stabilizáló / M_borító = W·(kar a lábélhez) / (P_h·z̄)."},
-   {q:"Hogyan hat a háttöltés vize a támfalra?",o:["Csökkenti a nyomást","Külön hidrosztatikus nyomást ad a földnyomáshoz → ezért kell vízelvezetés","Nincs hatása","Csak fagyáskor számít"],c:1,e:"A víz hidrosztatikus nyomása hozzáadódik az (effektív) földnyomáshoz, jelentősen növelve azt — ezért fontos a fal mögötti dréncső/szivárgó."},
+   {q:"Hogyan hat a háttöltés vize a súlytámfalra?",o:["Csökkenti a nyomást","Külön hidrosztatikus nyomást ad a földnyomáshoz → ezért kell vízelvezetés","Nincs hatása","Csak fagyáskor számít"],c:1,e:"A víz hidrosztatikus nyomása hozzáadódik az (effektív) földnyomáshoz, jelentősen növelve azt — ezért fontos a fal mögötti dréncső/szivárgó."},
    {q:"Melyik beavatkozás javítja a felborulás elleni biztonságot?",o:["Vékonyabb talp","Szélesebb talp / nagyobb falsúly","Magasabb fal","Meredekebb háttöltés"],c:1,e:"Szélesebb talp és nagyobb falsúly növeli a stabilizáló nyomatékot; magasítás és meredekebb háttöltés rontja."}
   ];
   let order=[],idx=0,score=0;
@@ -542,7 +542,7 @@ $("slideBtn").addEventListener('click',()=>{
   }
   $("qNext").addEventListener('click',()=>{idx++;if(idx<Q.length)show();
     else{$("quizMain").style.display='none';$("quizResult").classList.add('show');$("qFinal").textContent=score+" / "+Q.length;
-      const r=score/Q.length;$("qMsg").textContent=r>=0.9?"Kiváló! A földnyomás-elmélet és a támfal-állékonyság a kisujjadban van.":r>=0.7?"Szép munka! Egy-két részlet még csiszolható.":r>=0.5?"Jó alap. Játssz még a szimulátorral, és próbáld újra.":"Nézd át az alapokat, és próbáld újra — a szimulátor sokat segít!";}});
+      const r=score/Q.length;$("qMsg").textContent=r>=0.9?"Kiváló! A földnyomás-elmélet és a súlytámfal-állékonyság a kisujjadban van.":r>=0.7?"Szép munka! Egy-két részlet még csiszolható.":r>=0.5?"Jó alap. Játssz még a szimulátorral, és próbáld újra.":"Nézd át az alapokat, és próbáld újra — a szimulátor sokat segít!";}});
   $("qRestart").addEventListener('click',start);start();
 })();
 
