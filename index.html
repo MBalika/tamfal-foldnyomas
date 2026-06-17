@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<title>Támfal földnyomás — Rankine & Coulomb · Interaktív segédanyag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Inter:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef3f1; --card:#f9fbfa; --grid:rgba(13,90,80,0.055); --line:#d3dedb;
+  --ink:#0d272b; --ink2:#34514f; --ink3:#64807d;
+  --accent:#0e7c6b; --accent-soft:#dcefe9; --water:#1b6fae; --water-soft:#ddeaf6;
+  --active:#c2521f; --active-soft:#f7e2d5; --passive:#2f59c4; --passive-soft:#dde3f7;
+  --rest:#b87514; --rest-soft:#f5e7cf;
+  --soil:#e3d9c6; --soil-line:#b9a888; --wall:#9aa3a8; --wall-line:#6b7479;
+  --danger:#a32626; --ok:#2e7d4f;
+  --display:'Archivo',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);font-size:16px;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;}
+main{position:relative;z-index:1}
+nav{position:sticky;top:0;z-index:300;height:54px;background:rgba(238,243,241,0.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 1.4rem;gap:1.6rem;}
+.nav-logo{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:.06em;color:var(--accent);white-space:nowrap;text-transform:uppercase}
+.nav-links{display:flex;overflow-x:auto;scrollbar-width:none}.nav-links::-webkit-scrollbar{display:none}
+.nav-link{padding:0 12px;height:54px;display:flex;align-items:center;font-size:13.5px;font-weight:500;color:var(--ink3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.nav-link:hover{color:var(--ink)}.nav-link.active{color:var(--accent);border-bottom-color:var(--accent)}
+header.hero{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:4.5rem 1.5rem 3rem;}
+.hero-eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+.hero h1{font-family:var(--display);font-weight:900;letter-spacing:-0.015em;font-size:clamp(2.4rem,6.5vw,4.3rem);line-height:1.02;color:var(--ink);text-transform:uppercase;}
+.hero h1 .thin{font-weight:600;color:var(--ink3)}
+.hero-sub{max-width:640px;margin-top:1.3rem;font-size:1.06rem;color:var(--ink2)}
+.hero-eq{margin-top:2rem;max-width:660px;font-family:var(--mono);font-size:1.1rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:1rem 1.2rem;}
+.hero-eq small{display:block;font-family:var(--body);color:var(--ink3);font-size:.85rem;margin-top:.5rem}
+section{max-width:1040px;margin:0 auto;padding:3.2rem 1.5rem 1rem}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;}
+.eyebrow::after{content:'';height:1px;flex:1;background:var(--line)}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.1rem);letter-spacing:-.01em;margin-bottom:1rem}
+h3{font-family:var(--display);font-weight:700;font-size:1.12rem;margin:1.6rem 0 .5rem}
+p{margin-bottom:1rem;color:var(--ink2)}p strong{color:var(--ink)}.lead{font-size:1.05rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.4rem 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem}
+.card h4{font-family:var(--display);font-weight:700;font-size:.98rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.card p{font-size:.92rem;margin:0;color:var(--ink2)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dot.active{background:var(--active)}.dot.passive{background:var(--passive)}.dot.rest{background:var(--rest)}.dot.accent{background:var(--accent)}
+.formula{font-family:var(--mono);background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:.9rem 1.2rem;margin:1.2rem 0;font-size:.98rem;overflow-x:auto;}
+.formula small{display:block;font-family:var(--body);color:var(--ink3);font-size:.82rem;white-space:normal;margin-top:.4rem}
+.note{background:var(--accent-soft);border:1px solid #bcdcd2;border-radius:10px;padding:.9rem 1.2rem;margin:1.2rem 0;font-size:.95rem;color:var(--ink2);}
+.note strong{color:var(--accent)}.note.warn{background:var(--active-soft);border-color:#e7c4ab}.note.warn strong{color:var(--active)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.4rem;margin:1.6rem 0;box-shadow:0 2px 14px rgba(13,39,43,0.05);}
+.sim{display:grid;grid-template-columns:1.35fr 1fr;gap:1.2rem;align-items:start}
+@media(max-width:860px){.sim{grid-template-columns:1fr}}
+.svg-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:.4rem;overflow:hidden}
+.svg-wrap svg{display:block;width:100%;height:auto;touch-action:none}
+.ctrl{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.65rem}
+.ctrl label{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink3);display:flex;justify-content:space-between}
+.ctrl label .val{color:var(--ink);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent);height:22px}
+input[type=range].water{accent-color:var(--water)}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .9rem}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:.5rem}
+.seg button{flex:1;border:none;background:#fff;padding:7px 4px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:inherit;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.seg.state button[aria-pressed=true][data-s=aktiv]{background:var(--active)}
+.seg.state button[aria-pressed=true][data-s=nyugalmi]{background:var(--rest)}
+.seg.state button[aria-pressed=true][data-s=passziv]{background:var(--passive)}
+.btn{font-family:var(--display);font-weight:700;font-size:.88rem;padding:.5rem 1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.btn:hover{opacity:.92}.btn.ghost{background:transparent;color:var(--accent)}
+.btn-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.2rem 0 .9rem}
+.res{border:1px solid var(--line);border-radius:10px;padding:.6rem .85rem;background:#fff}
+.res .res-lab{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink3)}
+.res .res-val{font-family:var(--display);font-weight:900;font-size:1.7rem;line-height:1.1;margin-top:.15rem}
+.res .res-sub{font-size:.75rem;color:var(--ink3)}
+.statusbar{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.7rem}
+.chip{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:.35rem .6rem;color:var(--ink2)}
+.chip b{color:var(--ink)}
+.fbadge{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:.1rem .45rem;border-radius:5px;font-weight:600}
+.fbadge.safe{background:#e2f1e8;color:var(--ok)}.fbadge.unsafe{background:#f7e3e3;color:var(--danger)}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.9rem;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:.5rem .8rem;border-bottom:1px solid var(--line);text-align:center;font-family:var(--mono);font-size:.85rem}
+th{background:var(--accent-soft);color:var(--ink);font-family:var(--display);font-weight:700;font-size:.82rem}
+tr:last-child td{border-bottom:none}
+.quiz-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.6rem;margin:1.6rem 0}
+.quiz-progress{font-family:var(--mono);font-size:12.5px;color:var(--ink3);margin-bottom:.8rem;display:flex;justify-content:space-between}
+.quiz-q{font-family:var(--display);font-weight:700;font-size:1.12rem;margin-bottom:1.1rem}
+.quiz-opts{display:grid;gap:.6rem}
+.quiz-opt{text-align:left;font-family:var(--body);font-size:.96rem;padding:.7rem 1rem;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;color:var(--ink2)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.quiz-opt:disabled{cursor:default}
+.quiz-opt.correct{border-color:var(--ok);background:#e2f1e8;color:var(--ink);font-weight:600}
+.quiz-opt.wrong{border-color:var(--danger);background:#f7e3e3;color:var(--ink)}
+.quiz-expl{margin-top:1rem;padding:.9rem 1.1rem;border-radius:10px;background:var(--water-soft);border:1px solid #bcd4ea;font-size:.93rem;color:var(--ink2);display:none}
+.quiz-expl.show{display:block}.quiz-expl b{color:var(--water)}
+.quiz-next{margin-top:1.1rem;display:none}.quiz-next.show{display:inline-block}
+.quiz-result{text-align:center;display:none}.quiz-result.show{display:block}
+.quiz-score{font-family:var(--display);font-weight:900;font-size:3.2rem;color:var(--accent)}
+.quiz-msg{font-size:1.02rem;color:var(--ink2);margin:.6rem 0 1.4rem}
+.progress-track{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-bottom:1.1rem}
+.progress-fill{height:100%;background:var(--accent);width:0;transition:width .3s}
+footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1px solid var(--line);font-size:.85rem;color:var(--ink3);font-family:var(--mono)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-logo">Támfal földnyomás</span>
+  <div class="nav-links">
+    <a class="nav-link" href="#alap">Alapok</a>
+    <a class="nav-link" href="#allapot">Aktív / passzív</a>
+    <a class="nav-link" href="#rankine">Rankine</a>
+    <a class="nav-link" href="#coulomb">Coulomb</a>
+    <a class="nav-link" href="#allekonysag">Állékonyság</a>
+    <a class="nav-link" href="#szimulator">Szimulátor</a>
+    <a class="nav-link" href="#kviz">Kvíz</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">Talajmechanika · Interaktív segédanyag</div>
+  <h1>Támfal földnyomás<br><span class="thin">— Rankine & Coulomb</span></h1>
+  <p class="hero-sub">Mekkora erővel nyomja a talaj a támfalat — és <strong>mikor borul fel vagy csúszik el</strong>? A földnyomás attól függ, merre és mennyit mozdul a fal: ha <strong>elenged</strong>, aktív; ha <strong>nekifeszül</strong>, passzív. Lent élő szimulátorban állíthatod a falat és a talajt, és nézheted a nyomásábrát meg a biztonsági tényezőket.</p>
+  <div class="hero-eq">P<sub>a</sub> = ½ · K<sub>a</sub> · γ · H²
+    <small>Az aktív földnyomás eredője háromszög-megoszlásnál a&nbsp;fal magasságának négyzetével nő. K<sub>a</sub> az aktív földnyomási együttható (φ′-től, a&nbsp;háttöltés lejtésétől és a&nbsp;falsúrlódástól függ).</small>
+  </div>
+</header>
+
+<main>
+
+<section id="alap" class="reveal">
+  <div class="eyebrow">1 · Alapfogalmak</div>
+  <h2>Mi a földnyomás?</h2>
+  <p class="lead">A háttöltés a&nbsp;saját súlyából (és a&nbsp;felszíni terhekből) <strong>vízszintes nyomást</strong> fejt ki a&nbsp;támfalra. Ez a&nbsp;vízszintes feszültség a&nbsp;függőleges feszültség és egy <strong>földnyomási együttható</strong> (K) szorzata: σ<sub>h</sub> = K·σ′<sub>v</sub>. Hogy K mekkora, azt elsősorban az&nbsp;dönti el, <strong>mennyit és merre mozdul a&nbsp;fal</strong>.</p>
+  <div class="cards">
+    <div class="card"><h4><span class="dot active"></span>Aktív (K<sub>a</sub>)</h4><p>A fal kissé <strong>elmozdul a&nbsp;talajtól</strong> → a&nbsp;talaj megnyugszik, a&nbsp;nyomás a&nbsp;legkisebb. Tervezéskor jellemzően ezzel számolunk a&nbsp;háttöltés felől.</p></div>
+    <div class="card"><h4><span class="dot rest"></span>Nyugalmi (K<sub>0</sub>)</h4><p>A fal <strong>nem mozdul</strong> (merev, megtámasztott). K<sub>0</sub> ≈ 1 − sinφ′. Aktív és passzív között.</p></div>
+    <div class="card"><h4><span class="dot passive"></span>Passzív (K<sub>p</sub>)</h4><p>A fal <strong>nekifeszül a&nbsp;talajnak</strong> → a&nbsp;talaj ellenáll, a&nbsp;nyomás a&nbsp;legnagyobb. A&nbsp;fal lába előtt ez ad ellenállást a&nbsp;csúszással szemben.</p></div>
+  </div>
+  <p>Fontos arány: a&nbsp;passzív együttható <strong>sokkal nagyobb</strong>, mint az&nbsp;aktív (K<sub>p</sub> = 1/K<sub>a</sub> sima esetben), és a&nbsp;passzív állapot eléréséhez jóval <strong>nagyobb elmozdulás</strong> kell, mint az&nbsp;aktívhoz.</p>
+</section>
+
+<section id="allapot" class="reveal">
+  <div class="eyebrow">2 · A mozgás dönt</div>
+  <h2>Aktív, nyugalmi, passzív — a mobilizáció</h2>
+  <p class="lead">Ugyanaz a&nbsp;talaj háromféle nyomást fejthet ki, az&nbsp;elmozdulás irányától és nagyságától függően. A&nbsp;szimulátorban a&nbsp;három állapot között válthatsz, és látod, hogyan változik K, a&nbsp;nyomásábra és a&nbsp;törési ék.</p>
+  <table>
+    <thead><tr><th>Állapot</th><th>A fal mozgása</th><th>K (φ′=30°)</th><th>Szükséges elmozdulás</th></tr></thead>
+    <tbody>
+      <tr><td>Aktív</td><td>el a&nbsp;talajtól</td><td>K<sub>a</sub> ≈ 0,33</td><td>kicsi (~0,001·H)</td></tr>
+      <tr><td>Nyugalmi</td><td>nincs</td><td>K<sub>0</sub> ≈ 0,50</td><td>0</td></tr>
+      <tr><td>Passzív</td><td>a&nbsp;talaj felé</td><td>K<sub>p</sub> ≈ 3,0</td><td>nagy (~0,05·H)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="rankine" class="reveal">
+  <div class="eyebrow">3 · Az egyszerűbb</div>
+  <h2>Rankine-elmélet</h2>
+  <p class="lead">Rankine feltételezése: <strong>sima, függőleges falhát</strong> (nincs falsúrlódás), és a&nbsp;teljes talajtömeg plasztikus egyensúlyban van. Vízszintes háttöltésre az&nbsp;együtthatók egyszerűek:</p>
+  <div class="formula">K<sub>a</sub> = tan²(45° − φ′/2) = (1 − sinφ′) / (1 + sinφ′)<br>K<sub>p</sub> = tan²(45° + φ′/2) = (1 + sinφ′) / (1 − sinφ′)
+    <small>Ferde háttöltésnél (β) az&nbsp;eredő a&nbsp;lejtéssel párhuzamos, és K bonyolultabb. Kohézióra: σ<sub>a</sub> = K<sub>a</sub>·σ′<sub>v</sub> − 2c′·√K<sub>a</sub> → a&nbsp;fal tetején <strong>húzott repedés</strong> (z<sub>c</sub> = 2c′ / (γ·√K<sub>a</sub>)).</small>
+  </div>
+  <div class="note"><strong>Háromszög-megoszlás.</strong> Kohézió és víz nélkül a&nbsp;nyomás a&nbsp;mélységgel lineárisan nő, az&nbsp;eredő P<sub>a</sub> = ½·K<sub>a</sub>·γ·H², és a&nbsp;<strong>talptól H/3 magasságban</strong> támad.</div>
+</section>
+
+<section id="coulomb" class="reveal">
+  <div class="eyebrow">4 · A pontosabb</div>
+  <h2>Coulomb-elmélet</h2>
+  <p class="lead">Coulomb figyelembe veszi a&nbsp;<strong>fal és talaj közti súrlódást</strong> (δ), a&nbsp;ferde falhátat és a&nbsp;ferde háttöltést. A&nbsp;törési ék egyensúlyából vezeti le az&nbsp;eredőt. Függőleges falra, β háttöltésre az&nbsp;aktív együttható:</p>
+  <div class="formula">K<sub>a</sub> = cos²φ′ / { cosδ · [ 1 + √( sin(φ′+δ)·sin(φ′−β) / (cosδ·cosβ) ) ]² }
+    <small>Az eredő a&nbsp;falhát normálisához képest δ szöggel hajlik (a&nbsp;falsúrlódás miatt), így van egy <strong>függőleges összetevője</strong> is, ami stabilizál. A&nbsp;falsúrlódás csökkenti az&nbsp;aktív nyomást.</small>
+  </div>
+  <div class="note warn"><strong>Mikor melyik?</strong> Rankine egyszerű, sima falra jó. Coulomb a&nbsp;falsúrlódással reálisabb (kisebb aktív nyomást ad), ezért gravitációs támfalaknál gyakran ezt használják. A&nbsp;passzív oldalon a&nbsp;Coulomb nagy δ-nál túlbecsülhet — óvatosan.</div>
+</section>
+
+<section id="allekonysag" class="reveal">
+  <div class="eyebrow">5 · Mikor megy tönkre?</div>
+  <h2>A támfal állékonysága</h2>
+  <p class="lead">Egy gravitációs támfalnak a&nbsp;földnyomással szemben a&nbsp;<strong>saját súlya</strong> tart ellen. Két fő tönkremeneteli mód:</p>
+  <div class="cards">
+    <div class="card"><h4>Felborulás</h4><p>A fal a&nbsp;<strong>lábéle (toe) körül</strong> billen. F<sub>borulás</sub> = stabilizáló nyomaték / borító nyomaték = W·(kar) / (P<sub>h</sub>·z̄). Elvárt: F ≥ 1,5.</p></div>
+    <div class="card"><h4>Elcsúszás</h4><p>A fal a&nbsp;<strong>talpán megcsúszik</strong>. F<sub>csúszás</sub> = talp-súrlódás / vízszintes földnyomás = (W+P<sub>v</sub>)·tanδ<sub>talp</sub> / P<sub>h</sub>. Elvárt: F ≥ 1,5.</p></div>
+  </div>
+  <p>A&nbsp;<strong>víz</strong> a&nbsp;háttöltésben külön (hidrosztatikus) nyomást ad a&nbsp;földnyomáshoz — ezért fontos a&nbsp;támfal mögötti <strong>vízelvezetés</strong> (dréncső, szivárgó). A&nbsp;<strong>felszíni teher</strong> (q) a&nbsp;háttöltésen szintén növeli a&nbsp;nyomást.</p>
+</section>
+
+<section id="szimulator" class="reveal">
+  <div class="eyebrow">6 · A fő attrakció</div>
+  <h2>Interaktív földnyomás-szimulátor</h2>
+  <p class="lead">Állítsd a&nbsp;fal méreteit és a&nbsp;talaj paramétereit. A&nbsp;<strong>nyomásábra</strong> rárajzolódik a&nbsp;falhátra, az&nbsp;eredő P és a&nbsp;törési ék is látszik, és élőben frissül K, P, valamint a&nbsp;<strong>felborulási és csúszási</strong> biztonsági tényező. Válts az&nbsp;<strong>aktív / nyugalmi / passzív</strong> állapot és a&nbsp;<strong>Rankine / Coulomb</strong> módszer között.</p>
+  <div class="panel">
+    <div class="sim">
+      <div>
+        <div class="svg-wrap"><svg id="simSvg" viewBox="0 0 560 400" role="img" aria-label="Támfal földnyomás szimulátor"></svg></div>
+        <div class="btn-row">
+          <button class="btn" id="overturnBtn">▶ Felborulás animáció</button>
+          <button class="btn ghost" id="resetBtn">↺ Alaphelyzet</button>
+        </div>
+      </div>
+      <div>
+        <div class="statusbar" id="statusBar"></div>
+        <div class="result-grid">
+          <div class="res"><div class="res-lab">F · felborulás</div><div class="res-val" id="fOt">—</div><div class="res-sub">stab. / borító nyomaték</div></div>
+          <div class="res"><div class="res-lab">F · csúszás</div><div class="res-val" id="fSl">—</div><div class="res-sub">súrlódás / P<sub>h</sub></div></div>
+        </div>
+        <div class="seg state" id="stateSeg" role="group">
+          <button data-s="aktiv" aria-pressed="true">Aktív</button>
+          <button data-s="nyugalmi" aria-pressed="false">Nyugalmi</button>
+          <button data-s="passziv" aria-pressed="false">Passzív</button>
+        </div>
+        <div class="seg" id="methodSeg" role="group">
+          <button data-m="rankine" aria-pressed="true">Rankine</button>
+          <button data-m="coulomb" aria-pressed="false">Coulomb</button>
+        </div>
+        <div class="ctrl-grid">
+          <div class="ctrl"><label>Falmagasság H [m] <span class="val" id="hV"></span></label><input type="range" id="H" min="3" max="10" step="0.25"></div>
+          <div class="ctrl"><label>Talpszélesség B [m] <span class="val" id="bV"></span></label><input type="range" id="Bw" min="1" max="6" step="0.1"></div>
+          <div class="ctrl"><label>φ′ [°] <span class="val" id="phiV"></span></label><input type="range" id="phi" min="15" max="40" step="1"></div>
+          <div class="ctrl"><label>c′ [kPa] <span class="val" id="cV"></span></label><input type="range" id="c" min="0" max="30" step="1"></div>
+          <div class="ctrl"><label>γ talaj [kN/m³] <span class="val" id="gV"></span></label><input type="range" id="gam" min="16" max="21" step="0.5"></div>
+          <div class="ctrl"><label>Háttöltés β [°] <span class="val" id="betaV"></span></label><input type="range" id="beta" min="0" max="25" step="1"></div>
+          <div class="ctrl"><label>Falsúrlódás δ [°] <span class="val" id="deltaV"></span></label><input type="range" id="delta" min="0" max="25" step="1"></div>
+          <div class="ctrl"><label>Felszíni teher q [kPa] <span class="val" id="qV"></span></label><input type="range" id="q" min="0" max="40" step="1"></div>
+          <div class="ctrl"><label>Talajvíz mélys. d<sub>w</sub> [m] <span class="val" id="dwV"></span></label><input class="water" type="range" id="dw" min="0" max="10" step="0.25"></div>
+          <div class="ctrl"><label>Fal γ<sub>beton</sub> [kN/m³] <span class="val" id="gwV"></span></label><input type="range" id="gamW" min="20" max="25" step="0.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note warn"><strong>Próbáld ki:</strong> told a&nbsp;<strong>talajvizet</strong> a&nbsp;felszínhez (kis d<sub>w</sub>) — a&nbsp;víznyomás megugrik, és a&nbsp;biztonsági tényezők leesnek. Vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
+</section>
+
+<section id="kviz" class="reveal">
+  <div class="eyebrow">7 · Tudáspróba</div>
+  <h2>Kvíz — 12 kérdés</h2>
+  <p class="lead">Kevert sorrend, minden válasz után rövid magyarázattal.</p>
+  <div class="quiz-box">
+    <div id="quizMain">
+      <div class="progress-track"><div class="progress-fill" id="qProg"></div></div>
+      <div class="quiz-progress"><span id="qCount">1 / 12</span><span id="qScoreLive">Pont: 0</span></div>
+      <div class="quiz-q" id="qText"></div>
+      <div class="quiz-opts" id="qOpts"></div>
+      <div class="quiz-expl" id="qExpl"></div>
+      <button class="btn quiz-next" id="qNext">Következő →</button>
+    </div>
+    <div class="quiz-result" id="quizResult">
+      <div class="quiz-score" id="qFinal">0 / 12</div>
+      <div class="quiz-msg" id="qMsg"></div>
+      <button class="btn" id="qRestart">↺ Újrakezdés</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  Támfal földnyomás — Rankine & Coulomb · interaktív tananyag · Talajmechanika · oktatási célra. A&nbsp;szimulátor egyszerűsített (merev gravitációs fal, egyréteges háttöltés, hidrosztatikus víz); valós tervezés: MSZ EN 1997 (EC7).
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id), D=Math.PI/180, GW=9.81;
+const S={H:6,Bw:3,phi:30,c:0,gam:19,beta:0,delta:15,q:0,dw:10,gamW:24,method:'rankine',state:'aktiv'};
+const DEF=Object.assign({},S);
+let tipAng=0, tipRAF=0;
+
+/* ---------- földnyomási együtthatók ---------- */
+function KaRankine(phi,beta){const p=phi*D,b=beta*D; if(beta<0.5)return (1-Math.sin(p))/(1+Math.sin(p));
+  const cb=Math.cos(b),cp=Math.cos(p),r=Math.sqrt(Math.max(0,cb*cb-cp*cp)); return cb*(cb-r)/(cb+r);}
+function KpRankine(phi,beta){const p=phi*D,b=beta*D; if(beta<0.5)return (1+Math.sin(p))/(1-Math.sin(p));
+  const cb=Math.cos(b),cp=Math.cos(p),r=Math.sqrt(Math.max(0,cb*cb-cp*cp)); return cb*(cb+r)/(cb-r);}
+function KaCoulomb(phi,delta,beta){const p=phi*D,d=delta*D,b=beta*D;
+  const t=Math.sqrt(Math.max(0, Math.sin(p+d)*Math.sin(p-b)/(Math.cos(d)*Math.cos(b))));
+  return Math.cos(p)*Math.cos(p)/(Math.cos(d)*Math.pow(1+t,2));}
+
+/* ---------- elemzés ---------- */
+function analyse(){
+  const H=S.H, n=140, dz=H/n;
+  let K, infl, kind=S.state;
+  if(kind==='nyugalmi'){ K=1-Math.sin(S.phi*D); infl=0; }
+  else if(kind==='passziv'){ K=KpRankine(S.phi,S.beta); infl=(S.method==='coulomb')?S.delta:S.beta; }
+  else { K=(S.method==='coulomb')?KaCoulomb(S.phi,S.delta,S.beta):KaRankine(S.phi,S.beta); infl=(S.method==='coulomb')?S.delta:S.beta; }
+  let P=0, Mb=0, prof=[], maxp=0;
+  const sq=Math.sqrt(Math.max(K,1e-6));
+  for(let i=0;i<n;i++){
+    const z=(i+0.5)*dz;
+    const sv=S.q + S.gam*Math.min(z,S.dw) + Math.max(0,S.gam-GW)*Math.max(0,z-S.dw); // effektív függőleges
+    let sh;
+    if(kind==='passziv') sh=K*sv + 2*S.c*sq;
+    else if(kind==='nyugalmi') sh=K*sv;
+    else sh=K*sv - 2*S.c*sq;
+    if(kind==='aktiv'&&sh<0) sh=0;          // húzott repedés
+    const u=GW*Math.max(0,z-S.dw);
+    const tot=sh+u;
+    prof.push({z,sh,u,tot}); if(tot>maxp)maxp=tot;
+    P+=tot*dz; Mb+=tot*(H-z)*dz;
+  }
+  const zbar=P>0?Mb/P:H/3;
+  // állékonyság (aktív tervezési eset)
+  const W=S.gamW*S.Bw*H, Ph=P*Math.cos(infl*D), Pv=P*Math.sin(infl*D);
+  const Mot=Ph*zbar, Mres=W*(S.Bw/2)+Pv*S.Bw;
+  const FSot=Mot>0?Mres/Mot:99;
+  const FSsl=Ph>0?((W+Pv)*Math.tan(S.phi*D))/Ph:99;
+  const zc=(kind==='aktiv'&&S.c>0)?Math.min(H,2*S.c/(S.gam*sq)):0;
+  return {K,infl,P,Ph,Pv,zbar,prof,maxp,W,FSot,FSsl,zc,kind};
+}
+
+/* ---------- vetítés ---------- */
+const SVGW=560,SVGH=400;
+let T={};
+function view(){
+  const H=S.H, back=H*1.7, front=S.Bw+1.5;
+  let xmin=-front-1, xmax=back+1, ymin=-0.45*H, ymax=H+back*Math.tan(S.beta*D)+1;
+  const aspect=SVGW/SVGH; let wM=xmax-xmin, hM=ymax-ymin;
+  if(wM/hM>aspect){const nh=wM/aspect,cy=(ymin+ymax)/2;ymin=cy-nh/2;ymax=cy+nh/2;hM=nh;}
+  else{const nw=hM*aspect,cx=(xmin+xmax)/2;xmin=cx-nw/2;xmax=cx+nw/2;wM=nw;}
+  T={xmin,ymin,xmax,ymax,wM,s:SVGW/wM};
+}
+function P(x,y){return[(x-T.xmin)*T.s, SVGH-(y-T.ymin)*T.s];}
+const surfY=x=> S.H + Math.max(0,x)*Math.tan(S.beta*D); // háttöltés felszíne (x>=0)
+
+/* ---------- rajz ---------- */
+function draw(res){
+  view();
+  const H=S.H,B=S.Bw, col=res.kind==='aktiv'?'#c2521f':res.kind==='passziv'?'#2f59c4':'#b87514';
+  const xmaxw=Math.max(S.H*1.7,B+2), ymin=T.ymin;
+  let g='';
+  // alapozási talaj (y<0) + háttöltés (x>=0)
+  const farR=T.xmax+1, farL=T.xmin-1;
+  // talaj poligon: bal oldali előtér + alap + háttöltés
+  g+='<path d="M'+P(farL,0).join(' ')+' L'+P(-B,0).join(' ')+' L'+P(-B,0).join(' ')
+    +' L'+P(farL,ymin).join(' ')+' Z" fill="#e3d9c6"/>';
+  // alapozási réteg az egész szélességben (y<0)
+  g+='<rect x="0" y="'+P(0,0)[1].toFixed(1)+'" width="'+SVGW+'" height="'+(SVGH-P(0,0)[1]).toFixed(1)+'" fill="#ddd2bb"/>';
+  // háttöltés (x>=0, felszín alatt)
+  let bf='M'+P(0,0).join(' ');
+  for(let x=0;x<=farR;x+=0.3) bf+=' L'+P(x,surfY(x)).join(' ');
+  bf+=' L'+P(farR,0).join(' ')+' Z';
+  g+='<path d="'+bf+'" fill="#e3d9c6" stroke="#b9a888" stroke-width="1"/>';
+  // felszín előtér (bal, fal előtt) y=0
+  g+='<line x1="'+P(farL,0)[0].toFixed(1)+'" y1="'+P(farL,0)[1].toFixed(1)+'" x2="'+P(-B,0)[0].toFixed(1)+'" y2="'+P(-B,0)[1].toFixed(1)+'" stroke="#8c7a55" stroke-width="1.5"/>';
+
+  // törési ék (aktív 45+φ/2, passzív 45−φ/2) a sarokponttól (0,0) a felszínig
+  if(res.kind!=='nyugalmi'){
+    const th=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2))*D;
+    // ék a heel (0,0)-tól felfelé-jobbra, a felszínnel metszésig
+    let xi=0, yi=0;
+    for(let x=0;x<=xmaxw*1.4;x+=0.05){ const yl=x*Math.tan(th); if(yl>=surfY(x)){xi=x;yi=surfY(x);break;} xi=x;yi=yl; }
+    g+='<path d="M'+P(0,0).join(' ')+' L'+P(0,H).join(' ')+' L'+P(xi,yi).join(' ')+' Z" fill="'+col+'" fill-opacity="0.12" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3"/>';
+  }
+
+  // TÁMFAL (téglalap, hátlap x=0, lábél x=−B) — borulás-animációval a lábél körül
+  const toe=P(-B,0);
+  const wallPts=[[0,0],[0,H],[-B,H],[-B,0]].map(p=>P(p[0],p[1]));
+  g+='<g transform="rotate('+tipAng.toFixed(2)+' '+toe[0].toFixed(1)+' '+toe[1].toFixed(1)+')">'
+    +'<polygon points="'+wallPts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'" fill="#aab2b7" stroke="#6b7479" stroke-width="1.5"/>'
+    +'<line x1="'+wallPts[0][0].toFixed(1)+'" y1="'+wallPts[0][1].toFixed(1)+'" x2="'+wallPts[1][0].toFixed(1)+'" y2="'+wallPts[1][1].toFixed(1)+'" stroke="#5a6266" stroke-width="2"/>'
+    +'</g>';
+
+  // talajvíz a háttöltésben
+  if(S.dw<H-0.05){
+    const ywl=H-S.dw; // vízszint magassága a talptól (z=dw a tetőtől)
+    g+='<line x1="'+P(0,ywl)[0].toFixed(1)+'" y1="'+P(0,ywl)[1].toFixed(1)+'" x2="'+P(farR,ywl)[0].toFixed(1)+'" y2="'+P(0,ywl)[1].toFixed(1)+'" stroke="#1b6fae" stroke-width="1.4" stroke-dasharray="5 4"/>';
+    g+='<path d="M'+(P(0.3*1,ywl)[0]+6).toFixed(1)+' '+(P(0,ywl)[1]-7).toFixed(1)+' l9 0 l-4.5 7 z" fill="#1b6fae"/>';
+    g+='<text x="'+(P(0,ywl)[0]+24).toFixed(1)+'" y="'+(P(0,ywl)[1]-4).toFixed(1)+'" font-family="JetBrains Mono" font-size="10" fill="#1b6fae">talajvíz d_w='+S.dw.toFixed(1)+' m</text>';
+  }
+
+  // felszíni teher q nyilai a háttöltésen
+  if(S.q>0){
+    const x0=0.2, x1=Math.min(xmaxw, S.H*1.4);
+    for(let x=x0;x<=x1;x+=(x1-x0)/8){const top=P(x,surfY(x));
+      g+='<line x1="'+top[0].toFixed(1)+'" y1="'+(top[1]-14).toFixed(1)+'" x2="'+top[0].toFixed(1)+'" y2="'+(top[1]-2).toFixed(1)+'" stroke="#7a4a12" stroke-width="1.1"/>';
+      g+='<path d="M'+(top[0]-3).toFixed(1)+' '+(top[1]-5).toFixed(1)+' L'+(top[0]+3).toFixed(1)+' '+(top[1]-5).toFixed(1)+' L'+top[0].toFixed(1)+' '+(top[1]).toFixed(1)+' z" fill="#7a4a12"/>';}
+    g+='<text x="'+P(x0,surfY(x0))[0].toFixed(1)+'" y="'+(P(x0,surfY(x0))[1]-18).toFixed(1)+'" font-family="JetBrains Mono" font-size="10" fill="#7a4a12">q = '+S.q+' kPa</text>';
+  }
+
+  // NYOMÁSÁBRA a falhátra (x=0), jobbra kihúzva, σh(z) arányosan
+  const pmaxW=Math.min(2.4, S.H*0.5); // világ-egységben a max nyomásábra szélesség
+  const sc=res.maxp>0?pmaxW/res.maxp:0;
+  let pp='M'+P(0,H).join(' '); // tető (z=0 → y=H)
+  for(const s of res.prof){ const yy=H-s.z; pp+=' L'+P(s.tot*sc, yy).join(' '); }
+  pp+=' L'+P(0,0).join(' ')+' Z';
+  g+='<path d="'+pp+'" fill="'+col+'" fill-opacity="0.32" stroke="'+col+'" stroke-width="1.5"/>';
+  // víznyomás-rész (kék) külön, ha van
+  if(S.dw<H){
+    let wp='', started=false;
+    for(const s of res.prof){ if(s.u>0){ const yy=H-s.z; if(!started){wp='M'+P(0,yy).join(' ');started=true;} wp+=' L'+P(s.u*sc,yy).join(' '); } }
+    if(started){ wp+=' L'+P(0,0).join(' ')+' Z'; g+='<path d="'+wp+'" fill="#1b6fae" fill-opacity="0.30" stroke="#1b6fae" stroke-width="1"/>'; }
+  }
+  // eredő P nyíl a z̄ magasságban, a falba mutatva (infl szöggel)
+  const yr=res.zbar, tail=P(res.maxp*sc*0.62, yr), head=P(0,yr);
+  g+='<line x1="'+tail[0].toFixed(1)+'" y1="'+tail[1].toFixed(1)+'" x2="'+head[0].toFixed(1)+'" y2="'+head[1].toFixed(1)+'" stroke="'+col+'" stroke-width="3"/>';
+  const ang=Math.atan2(head[1]-tail[1],head[0]-tail[0]);
+  g+='<path d="M'+head[0].toFixed(1)+' '+head[1].toFixed(1)+' L'+(head[0]-9*Math.cos(ang-0.4)).toFixed(1)+' '+(head[1]-9*Math.sin(ang-0.4)).toFixed(1)+' L'+(head[0]-9*Math.cos(ang+0.4)).toFixed(1)+' '+(head[1]-9*Math.sin(ang+0.4)).toFixed(1)+' z" fill="'+col+'"/>';
+  g+='<text x="'+(tail[0]+4).toFixed(1)+'" y="'+(tail[1]-4).toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="600" fill="'+col+'">P = '+res.P.toFixed(0)+' kN/m</text>';
+
+  // H méret
+  const hx=P(-B-0.4,0);
+  g+='<line x1="'+hx[0].toFixed(1)+'" y1="'+P(-B-0.4,0)[1].toFixed(1)+'" x2="'+hx[0].toFixed(1)+'" y2="'+P(-B-0.4,H)[1].toFixed(1)+'" stroke="rgba(20,30,45,.4)" stroke-width="1" stroke-dasharray="2 3"/>';
+  g+='<text x="'+(hx[0]-6).toFixed(1)+'" y="'+P(-B-0.4,H/2)[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="10" fill="#34514f" text-anchor="end">H='+H.toFixed(1)+'</text>';
+  // lábél jel
+  g+='<circle cx="'+toe[0].toFixed(1)+'" cy="'+toe[1].toFixed(1)+'" r="3.5" fill="#0d272b"/>';
+  g+='<text x="'+(toe[0]-4).toFixed(1)+'" y="'+(toe[1]+14).toFixed(1)+'" font-family="JetBrains Mono" font-size="9.5" fill="#34514f" text-anchor="end">lábél</text>';
+
+  $("simSvg").innerHTML=g;
+}
+
+/* ---------- frissítés ---------- */
+function fbadge(F){return F>=1.5?'<span class="fbadge safe">megfelel</span>':F>=1?'<span class="fbadge safe">F≥1</span>':'<span class="fbadge unsafe">F&lt;1</span>';}
+function fcol(F){return F>=1.5?'var(--ok)':F>=1?'var(--rest)':'var(--danger)';}
+function update(){
+  $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
+  $("phiV").textContent=S.phi+"°";$("cV").textContent=S.c+" kPa";$("gV").textContent=S.gam.toFixed(1);
+  $("betaV").textContent=S.beta+"°";$("deltaV").textContent=S.delta+"°";$("qV").textContent=S.q+" kPa";
+  $("dwV").textContent=S.dw.toFixed(2)+" m";$("gwV").textContent=S.gamW.toFixed(1);
+  const res=analyse(); draw(res);
+  const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind];
+  $("statusBar").innerHTML='<div class="chip">Állapot: <b>'+kn+'</b></div>'
+    +'<div class="chip">K = <b>'+res.K.toFixed(3)+'</b></div>'
+    +'<div class="chip">P = <b>'+res.P.toFixed(0)+' kN/m</b></div>'
+    +'<div class="chip">z̄ = <b>'+res.zbar.toFixed(2)+' m</b></div>'
+    +(res.zc>0?'<div class="chip">húzott repedés z_c = <b>'+res.zc.toFixed(2)+' m</b></div>':'');
+  if(res.kind==='aktiv'){
+    $("fOt").innerHTML=res.FSot.toFixed(2)+' '+fbadge(res.FSot); $("fOt").style.color=fcol(res.FSot);
+    $("fSl").innerHTML=res.FSsl.toFixed(2)+' '+fbadge(res.FSsl); $("fSl").style.color=fcol(res.FSsl);
+  } else { $("fOt").textContent='—';$("fOt").style.color='var(--ink3)';$("fSl").textContent='—';$("fSl").style.color='var(--ink3)';
+    $("statusBar").innerHTML+='<div class="chip" style="border-color:#e7c4ab;background:#f7e2d5">Állékonyság csak aktív esetben</div>'; }
+}
+
+/* ---------- vezérlők ---------- */
+const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV',dw:'dwV',gamW:'gwV'};
+function sync(){for(const k in fmt)$(k).value=S[k];}
+for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;update();});
+$("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;
+  [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
+$("methodSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.method=b.dataset.m;
+  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
+$("resetBtn").addEventListener('click',()=>{tipAng=0;Object.assign(S,DEF);sync();
+  [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.s==='aktiv'));
+  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));update();});
+
+/* ---------- felborulás-animáció (a lábél körül) ---------- */
+$("overturnBtn").addEventListener('click',()=>{
+  if(tipRAF)cancelAnimationFrame(tipRAF);
+  const t0=performance.now(),dur=1400,maxA=16; // SVG: pozitív = óramutató szerint → előrebillen a lábélen
+  function step(now){const p=Math.min(1,(now-t0)/dur),e=p*p; tipAng=maxA*e; update();
+    if(p<1)tipRAF=requestAnimationFrame(step); else setTimeout(()=>{tipAng=0;update();},700);}
+  tipRAF=requestAnimationFrame(step);
+});
+
+/* ---------- nav + reveal ---------- */
+(function(){const links=[...document.querySelectorAll('.nav-link')];
+  if(typeof IntersectionObserver==='undefined'){document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));return;}
+  const secs=links.map(l=>document.querySelector(l.getAttribute('href'))).filter(Boolean);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));}),{rootMargin:'-30% 0px -60% 0px'});
+  secs.forEach(s=>io.observe(s));
+  const rio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');rio.unobserve(e.target);}}),{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>rio.observe(el));})();
+
+/* ---------- kvíz ---------- */
+(function(){
+  const Q=[
+   {q:"Mitől függ elsősorban, hogy aktív, nyugalmi vagy passzív földnyomás ébred?",o:["A talaj színétől","A fal elmozdulásának irányától és nagyságától","Csak a fal magasságától","A betontól"],c:1,e:"Ha a fal elmozdul a talajtól → aktív (legkisebb), ha nem mozdul → nyugalmi, ha a talajnak feszül → passzív (legnagyobb)."},
+   {q:"Melyik a legkisebb földnyomási együttható?",o:["K_a (aktív)","K_0 (nyugalmi)","K_p (passzív)","Mind egyenlő"],c:0,e:"K_a < K_0 < K_p. Az aktív a legkisebb (a fal elenged), a passzív a legnagyobb (a talajnak feszül)."},
+   {q:"Vízszintes háttöltésnél a Rankine aktív együttható:",o:["tan²(45°+φ/2)","tan²(45°−φ/2)","1−sinφ csak","sinφ/cosφ"],c:1,e:"K_a = tan²(45°−φ/2) = (1−sinφ)/(1+sinφ). A passzív ennek a reciproka: tan²(45°+φ/2)."},
+   {q:"Háromszög-megoszlású aktív nyomásnál hol támad az eredő a talptól?",o:["H/2 magasságban","H/3 magasságban","a fal tetején","a talpon"],c:1,e:"Lineárisan növekvő (háromszög) nyomásnál az eredő a talptól H/3 magasságban hat."},
+   {q:"Az aktív földnyomás eredője a fal magasságával hogyan változik?",o:["lineárisan (H)","a négyzetével (H²)","a köbével (H³)","nem függ tőle"],c:1,e:"P_a = ½·K_a·γ·H² — a magasság négyzetével arányos."},
+   {q:"Mit vesz figyelembe a Coulomb-elmélet, amit a Rankine (alapváltozat) nem?",o:["A talaj súlyát","A fal és talaj közti súrlódást (δ)","A vizet","A kohéziót"],c:1,e:"Coulomb a falsúrlódást (δ), a ferde falhátat és a ferde háttöltést is kezeli; emiatt kisebb (reálisabb) aktív nyomást ad."},
+   {q:"Hogyan hat a falsúrlódás (δ) az aktív földnyomásra?",o:["Növeli","Csökkenti","Nincs hatása","Megszünteti"],c:1,e:"A falsúrlódás csökkenti az aktív nyomást, és az eredőnek függőleges összetevőt ad, ami stabilizálja a falat."},
+   {q:"Mi a húzott repedés (tension crack) a kohéziós háttöltés tetején?",o:["A fal repedése","Ahol az aktív nyomás negatív lenne, ezért zérusnak vesszük (z_c = 2c/(γ√Ka))","A víz nyoma","A talp repedése"],c:1,e:"Kohéziónál σ_a = K_a·σ′_v − 2c√K_a; a tetőn ez negatív (húzás) lenne, amit a talaj nem vesz fel → repedés z_c mélységig."},
+   {q:"Mi a gravitációs támfal két fő tönkremeneteli módja a földnyomással szemben?",o:["Olvadás és fagyás","Felborulás és elcsúszás","Zsugorodás és duzzadás","Korrózió"],c:1,e:"Felborulás a lábél körül, és elcsúszás a talpon. (Plusz: talajtörés és globális rézsűcsúszás.)"},
+   {q:"A felborulási biztonsági tényező:",o:["W·tanφ / P_h","stabilizáló nyomaték / borító nyomaték","P_h / W","K_a / K_p"],c:1,e:"F_borulás = M_stabilizáló / M_borító = W·(kar a lábélhez) / (P_h·z̄)."},
+   {q:"Hogyan hat a háttöltés vize a támfalra?",o:["Csökkenti a nyomást","Külön hidrosztatikus nyomást ad a földnyomáshoz → ezért kell vízelvezetés","Nincs hatása","Csak fagyáskor számít"],c:1,e:"A víz hidrosztatikus nyomása hozzáadódik az (effektív) földnyomáshoz, jelentősen növelve azt — ezért fontos a fal mögötti dréncső/szivárgó."},
+   {q:"Melyik beavatkozás javítja a felborulás elleni biztonságot?",o:["Vékonyabb talp","Szélesebb talp / nagyobb falsúly","Magasabb fal","Meredekebb háttöltés"],c:1,e:"Szélesebb talp és nagyobb falsúly növeli a stabilizáló nyomatékot; magasítás és meredekebb háttöltés rontja."}
+  ];
+  let order=[],idx=0,score=0;
+  function sh(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function start(){order=sh([...Q.keys()]);idx=0;score=0;$("quizResult").classList.remove('show');$("quizMain").style.display='block';show();}
+  function show(){const q=Q[order[idx]];
+    $("qCount").textContent=(idx+1)+" / "+Q.length;$("qScoreLive").textContent="Pont: "+score;
+    $("qProg").style.width=(idx/Q.length*100)+"%";$("qText").textContent=q.q;
+    $("qExpl").classList.remove('show');$("qNext").classList.remove('show');
+    const opts=sh(q.o.map((t,i)=>({t,ok:i===q.c})));$("qOpts").innerHTML="";
+    opts.forEach(o=>{const b=document.createElement('button');b.className='quiz-opt';b.textContent=o.t;
+      b.addEventListener('click',()=>{[...$("qOpts").children].forEach(x=>x.disabled=true);
+        if(o.ok){b.classList.add('correct');score++;}else{b.classList.add('wrong');[...$("qOpts").children].find(x=>x.textContent===q.o[q.c]).classList.add('correct');}
+        $("qScoreLive").textContent="Pont: "+score;$("qExpl").innerHTML="<b>Magyarázat:</b> "+q.e;$("qExpl").classList.add('show');
+        $("qNext").classList.add('show');$("qNext").textContent=idx<Q.length-1?"Következő →":"Eredmény →";});
+      $("qOpts").appendChild(b);});
+  }
+  $("qNext").addEventListener('click',()=>{idx++;if(idx<Q.length)show();
+    else{$("quizMain").style.display='none';$("quizResult").classList.add('show');$("qFinal").textContent=score+" / "+Q.length;
+      const r=score/Q.length;$("qMsg").textContent=r>=0.9?"Kiváló! A földnyomás-elmélet és a támfal-állékonyság a kisujjadban van.":r>=0.7?"Szép munka! Egy-két részlet még csiszolható.":r>=0.5?"Jó alap. Játssz még a szimulátorral, és próbáld újra.":"Nézd át az alapokat, és próbáld újra — a szimulátor sokat segít!";}});
+  $("qRestart").addEventListener('click',start);start();
+})();
+
+/* init */
+sync();update();
+})();
+</script>
+
+<script>
+/* Magyar tipográfia — automatikus sortörés-szabályok */
+(function(){
+  "use strict";
+  var NBSP=' ', WJ='⁠';
+  function fix(s){
+    s=s.replace(/([.!?…][)"'»”’]?\s+\S+) (?=\S)/g,'$1'+NBSP);
+    s=s.replace(/(^|[\s(„"'«»–—])(a|az|s|e|é|és|is) (?=\S)/gi,'$1$2'+NBSP);
+    s=s.replace(/ (?=[=+−·×<>≈≥≤≠\/])/g,NBSP);
+    s=s.replace(/([=+−·×<>≈≥≤≠\/]) /g,'$1'+NBSP);
+    s=s.replace(/(\d) (?=(?:kPa|MPa|kN\/m³|kN\/m²|kN|m³|m²|cm|mm|km|kg|°C|°|%|m|év)(?:[\s.,;:!?)\]–—]|$))/g,'$1'+NBSP);
+    s=s.replace(/([0-9A-Za-zÀ-ſ])([\-–—])([0-9A-Za-zÀ-ſ])/g,'$1'+WJ+'$2'+WJ+'$3');
+    return s;
+  }
+  var SKIP={SCRIPT:1,STYLE:1,CODE:1,PRE:1,KBD:1,SAMP:1,INPUT:1,TEXTAREA:1,SELECT:1,OPTION:1,NOSCRIPT:1};
+  function walk(el){ if(!el)return;
+    for(var n=el.firstChild;n;n=n.nextSibling){
+      if(n.nodeType===3){ var t=n.nodeValue; if(t&&/\S/.test(t)){ var nt=fix(t); if(nt!==t)n.nodeValue=nt; } }
+      else if(n.nodeType===1){ var tag=n.tagName?n.tagName.toUpperCase():''; if(SKIP[tag])continue;
+        if(n.namespaceURI==='http://www.w3.org/2000/svg')continue;
+        if(n.classList&&n.classList.contains('nowrap'))continue; walk(n); }
+    }
+  }
+  window.__typo=walk;
+  function run(){ walk(document.body); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+  setInterval(function(){ ['qText','qOpts','qExpl'].forEach(function(id){var el=document.getElementById(id); if(el)walk(el);}); },400);
+})();
+</script>
+<style>
+body{text-wrap:pretty}
+p,li,.lead,.hero-sub,.card p,.note,.res-sub{text-wrap:pretty;hyphens:none}
+h1,h2,h3,h4,.quiz-q{text-wrap:balance}
+.formula,.hero-eq{white-space:nowrap;overflow-x:auto}
+.formula small,.hero-eq small{white-space:normal}
+.nowrap{white-space:nowrap}
+</style>
+</body>
+</html>
