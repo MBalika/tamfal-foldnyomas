@@ -635,7 +635,7 @@ sync();update();
 </script>
 
 <script>
-/* Magyar tipográfia — automatikus sortörés-szabályok */
+/* Magyar tipográfia — automatikus sortörés-szabályok (frissített skill) */
 (function(){
   "use strict";
   var NBSP=' ', WJ='⁠';
@@ -644,7 +644,7 @@ sync();update();
     s=s.replace(/(^|[\s(„"'«»–—])(a|az|s|e|é|és|is) (?=\S)/gi,'$1$2'+NBSP);
     s=s.replace(/ (?=[=+−·×<>≈≥≤≠\/])/g,NBSP);
     s=s.replace(/([=+−·×<>≈≥≤≠\/]) /g,'$1'+NBSP);
-    s=s.replace(/(\d) (?=(?:kPa|MPa|kN\/m³|kN\/m²|kN|m³|m²|cm|mm|km|kg|°C|°|%|m|év)(?:[\s.,;:!?)\]–—]|$))/g,'$1'+NBSP);
+    s=s.replace(/(\d) (?=(?:kPa|MPa|GPa|kN\/m³|kN\/m²|kN\/m|kN|m³|m²|m\/s|cm|mm|km|kg|°C|°|%|m|t|óra|nap|hét|hónap|év)(?:[\s.,;:!?)\]–—]|$))/g,'$1'+NBSP);
     s=s.replace(/([0-9A-Za-zÀ-ſ])([\-–—])([0-9A-Za-zÀ-ſ])/g,'$1'+WJ+'$2'+WJ+'$3');
     return s;
   }
@@ -657,18 +657,25 @@ sync();update();
         if(n.classList&&n.classList.contains('nowrap'))continue; walk(n); }
     }
   }
-  window.__typo=walk;
-  function run(){ walk(document.body); }
+  function across(root){ if(!root||!document.createTreeWalker)return; /* keresztelemes árva-megkötés */
+    var SHORT=/(^|[\s„"'(»–—])(a|az|s|e|é|és|is) $/i, w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null), arr=[], x;
+    while(x=w.nextNode()){var p=x.parentNode,sk=false;while(p&&p.nodeType===1){var tg=p.tagName?p.tagName.toUpperCase():'';if(SKIP[tg]||p.namespaceURI==='http://www.w3.org/2000/svg'){sk=true;break;}p=p.parentNode;}if(!sk&&/\S/.test(x.nodeValue))arr.push(x);}
+    for(var i=0;i<arr.length-1;i++){var v=arr[i].nodeValue;if(SHORT.test(v)){var nv=arr[i+1].nodeValue;if(/^[^\s]/.test(nv))arr[i].nodeValue=v.replace(/ $/,NBSP);else if(/^ /.test(nv)){arr[i].nodeValue=v.replace(/ $/,NBSP);arr[i+1].nodeValue=nv.replace(/^ +/,'');}}}
+  }
+  function typo(el){ el=el||document.body; if(!el)return; walk(el); across(el); }
+  window.__typo=typo;
+  function run(){ typo(document.body); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
-  setInterval(function(){ ['qText','qOpts','qExpl'].forEach(function(id){var el=document.getElementById(id); if(el)walk(el);}); },400);
+  /* dinamikusan frissülő tartalom újrakötése (kvíz + élő chipek/feliratok) — a fix() idempotens */
+  setInterval(function(){ ['qText','qOpts','qExpl','statusBar','moveStatus','dispV'].forEach(function(id){var el=document.getElementById(id); if(el)typo(el);}); },400);
 })();
 </script>
 <style>
 body{text-wrap:pretty}
-p,li,.lead,.hero-sub,.card p,.note,.res-sub{text-wrap:pretty;hyphens:none}
+p,li,figcaption,blockquote,dd,.lead,.hero-sub,.card p,.note,.res-sub,.quiz-opt,.quiz-expl{text-wrap:pretty;hyphens:none}
 h1,h2,h3,h4,.quiz-q{text-wrap:balance}
-.formula,.hero-eq{white-space:nowrap;overflow-x:auto}
-.formula small,.hero-eq small{white-space:normal}
+.formula,.hero-eq,.eq{white-space:nowrap;overflow-x:auto}
+.formula small,.hero-eq small,.eq small{white-space:normal}
 .nowrap{white-space:nowrap}
 </style>
 </body>
