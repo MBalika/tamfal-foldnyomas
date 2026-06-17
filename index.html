@@ -531,8 +531,6 @@ function drawMove(){
   const lvl=(E,txt,col)=>{const y=mvY(E,Emax);return '<line x1="'+MV.ML+'" y1="'+y.toFixed(1)+'" x2="'+xR.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>'
      +'<text x="'+(MV.ML+5)+'" y="'+(y-4).toFixed(1)+'" '+FB+' font-size="10.5" font-weight="700" fill="'+col+'">'+txt+' = '+E.toFixed(0)+' kN/m</text>';};
   g+=lvl(L.Ep,'Eₚ','#2f59c4')+lvl(L.E0,'E₀','#b87514')+lvl(L.Ea,'Eₐ','#c2521f');
-  // zéró (nyugalmi) függőleges
-  g+='<line x1="'+x0.toFixed(1)+'" y1="'+MV.MT+'" x2="'+x0.toFixed(1)+'" y2="'+yB.toFixed(1)+'" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>';
   // x_a, x_p tickek
   const tick=(d,txt)=>{const x=mvX(d);return '<line x1="'+x.toFixed(1)+'" y1="'+yB.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+(yB+6).toFixed(1)+'" stroke="var(--ink2)" stroke-width="1.2"/>'
      +'<text x="'+x.toFixed(1)+'" y="'+(yB+18).toFixed(1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="middle">'+txt+'</text>';};
@@ -540,9 +538,9 @@ function drawMove(){
   // tengelyek + nyilak
   g+='<line x1="'+MV.ML+'" y1="'+yB.toFixed(1)+'" x2="'+(xR+10)+'" y2="'+yB.toFixed(1)+'" stroke="var(--ink)" stroke-width="1.5"/>'
     +'<path d="M'+(xR+10)+' '+yB.toFixed(1)+' l-7 -4 l0 8 z" fill="var(--ink)"/>'
-    +'<line x1="'+MV.ML+'" y1="'+yB.toFixed(1)+'" x2="'+MV.ML+'" y2="'+(MV.MT-10)+'" stroke="var(--ink)" stroke-width="1.5"/>'
-    +'<path d="M'+MV.ML+' '+(MV.MT-10)+' l-4 7 l8 0 z" fill="var(--ink)"/>'
-    +'<text x="'+(MV.ML-6)+'" y="'+(MV.MT-1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="end">E [kN/m]</text>';
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+yB.toFixed(1)+'" x2="'+x0.toFixed(1)+'" y2="'+(MV.MT-10)+'" stroke="var(--ink)" stroke-width="1.5"/>'
+    +'<path d="M'+x0.toFixed(1)+' '+(MV.MT-10)+' l-4 7 l8 0 z" fill="var(--ink)"/>'
+    +'<text x="'+(x0-6).toFixed(1)+'" y="'+(MV.MT-1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="end">E [kN/m]</text>';
   // görbe
   let path='';
   for(let i=0;i<=260;i++){const d=MV.dMin+(MV.dMax-MV.dMin)*i/260; path+=(i?' L':'M')+mvX(d).toFixed(1)+' '+mvY(mvEmob(d,L),Emax).toFixed(1);}
@@ -562,7 +560,7 @@ function drawMove(){
   const d=mvCurD(), E=mvEmob(d,L), hx=mvX(d), hy=mvY(E,Emax);
   const hcol=d<=-0.0004?'#c2521f':d>=0.0004?'#2f59c4':'#b87514';
   g+='<line x1="'+hx.toFixed(1)+'" y1="'+hy.toFixed(1)+'" x2="'+hx.toFixed(1)+'" y2="'+yB.toFixed(1)+'" stroke="'+hcol+'" stroke-width="1" stroke-dasharray="3 2"/>'
-    +'<line x1="'+hx.toFixed(1)+'" y1="'+hy.toFixed(1)+'" x2="'+MV.ML+'" y2="'+hy.toFixed(1)+'" stroke="'+hcol+'" stroke-width="1" stroke-dasharray="3 2"/>'
+    +'<line x1="'+hx.toFixed(1)+'" y1="'+hy.toFixed(1)+'" x2="'+x0.toFixed(1)+'" y2="'+hy.toFixed(1)+'" stroke="'+hcol+'" stroke-width="1" stroke-dasharray="3 2"/>'
     +'<circle cx="'+hx.toFixed(1)+'" cy="'+hy.toFixed(1)+'" r="6" fill="'+hcol+'" stroke="#fff" stroke-width="2"/>';
   $("moveSvg").innerHTML=g;
   // kijelzés
