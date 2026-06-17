@@ -63,6 +63,10 @@ p{margin-bottom:1rem;color:var(--ink2)}p strong{color:var(--ink)}.lead{font-size
 .ctrl label .val{color:var(--ink);font-weight:600}
 input[type=range]{width:100%;accent-color:var(--accent);height:22px}
 input[type=range].water{accent-color:var(--water)}
+.ctrl.const{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
+.ctrl.const label{margin:0}
+.const-val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.const-val em{font-style:normal;font-size:11px;color:var(--ink3)}
 .ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .9rem}
 .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:.5rem}
 .seg button{flex:1;border:none;background:#fff;padding:7px 4px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:inherit;border-right:1px solid var(--line)}
@@ -230,7 +234,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <div class="ctrl"><label>Falsúrlódás δ [°] <span class="val" id="deltaV"></span></label><input type="range" id="delta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Felszíni teher q [kPa] <span class="val" id="qV"></span></label><input type="range" id="q" min="0" max="40" step="1"></div>
           <div class="ctrl"><label>Talajvíz mélys. d<sub>w</sub> [m] <span class="val" id="dwV"></span></label><input class="water" type="range" id="dw" min="0" max="10" step="0.25"></div>
-          <div class="ctrl"><label>Fal γ<sub>beton</sub> [kN/m³] <span class="val" id="gwV"></span></label><input type="range" id="gamW" min="20" max="25" step="0.5"></div>
+          <div class="ctrl const"><label>Fal γ<sub>beton</sub></label><span class="const-val">24 kN/m³ <em>(állandó)</em></span></div>
         </div>
       </div>
     </div>
@@ -448,7 +452,7 @@ function update(){
   $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
   $("phiV").textContent=S.phi+"°";$("cV").textContent=S.c+" kPa";$("gV").textContent=S.gam.toFixed(1);
   $("betaV").textContent=S.beta+"°";$("deltaV").textContent=S.delta+"°";$("qV").textContent=S.q+" kPa";
-  $("dwV").textContent=S.dw.toFixed(2)+" m";$("gwV").textContent=S.gamW.toFixed(1);
+  $("dwV").textContent=S.dw.toFixed(2)+" m";
   const res=analyse(); draw(res);
   const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind];
   const thDeg=res.kind==='aktiv'?(45+S.phi/2):res.kind==='passziv'?(45-S.phi/2):null;
@@ -466,7 +470,7 @@ function update(){
 }
 
 /* ---------- vezérlők ---------- */
-const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV',dw:'dwV',gamW:'gwV'};
+const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV',dw:'dwV'};
 function sync(){for(const k in fmt)$(k).value=S[k];}
 for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;slideOff=0;update();});
 $("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;slideOff=0;
