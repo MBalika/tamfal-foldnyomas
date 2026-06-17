@@ -200,7 +200,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
       <div>
         <div class="svg-wrap"><svg id="simSvg" viewBox="0 0 560 400" role="img" aria-label="Támfal földnyomás szimulátor"></svg></div>
         <div class="btn-row">
-          <button class="btn" id="overturnBtn">▶ Felborulás animáció</button>
+          <button class="btn" id="overturnBtn">▶ Felborulás</button>
+          <button class="btn" id="slideBtn">▶ Elcsúszás</button>
           <button class="btn ghost" id="resetBtn">↺ Alaphelyzet</button>
         </div>
       </div>
@@ -222,8 +223,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
         <div class="ctrl-grid">
           <div class="ctrl"><label>Falmagasság H [m] <span class="val" id="hV"></span></label><input type="range" id="H" min="3" max="10" step="0.25"></div>
           <div class="ctrl"><label>Talpszélesség B [m] <span class="val" id="bV"></span></label><input type="range" id="Bw" min="1" max="6" step="0.1"></div>
-          <div class="ctrl"><label>φ′ [°] <span class="val" id="phiV"></span></label><input type="range" id="phi" min="15" max="40" step="1"></div>
-          <div class="ctrl"><label>c′ [kPa] <span class="val" id="cV"></span></label><input type="range" id="c" min="0" max="30" step="1"></div>
+          <div class="ctrl"><label>φ′ [°] <span class="val" id="phiV"></span></label><input type="range" id="phi" min="0" max="40" step="1"></div>
+          <div class="ctrl"><label>c′ [kPa] <span class="val" id="cV"></span></label><input type="range" id="c" min="0" max="100" step="1"></div>
           <div class="ctrl"><label>γ talaj [kN/m³] <span class="val" id="gV"></span></label><input type="range" id="gam" min="16" max="21" step="0.5"></div>
           <div class="ctrl"><label>Háttöltés β [°] <span class="val" id="betaV"></span></label><input type="range" id="beta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Falsúrlódás δ [°] <span class="val" id="deltaV"></span></label><input type="range" id="delta" min="0" max="25" step="1"></div>
@@ -269,7 +270,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 const $=id=>document.getElementById(id), D=Math.PI/180, GW=9.81;
 const S={H:6,Bw:3,phi:30,c:0,gam:19,beta:0,delta:15,q:0,dw:10,gamW:24,method:'rankine',state:'aktiv'};
 const DEF=Object.assign({},S);
-let tipAng=0, tipRAF=0;
+let tipAng=0, tipRAF=0, slideOff=0, slideRAF=0;
 
 /* ---------- földnyomási együtthatók ---------- */
 function KaRankine(phi,beta){const p=phi*D,b=beta*D; if(beta<0.5)return (1-Math.sin(p))/(1+Math.sin(p));
@@ -307,7 +308,7 @@ function analyse(){
   const W=S.gamW*S.Bw*H, Ph=P*Math.cos(infl*D), Pv=P*Math.sin(infl*D);
   const Mot=Ph*zbar, Mres=W*(S.Bw/2)+Pv*S.Bw;
   const FSot=Mot>0?Mres/Mot:99;
-  const FSsl=Ph>0?((W+Pv)*Math.tan(S.phi*D))/Ph:99;
+  const FSsl=Ph>0?((W+Pv)*Math.tan(S.phi*D)+S.c*S.Bw)/Ph:99; // talpsúrlódás + talpadhézió (c·B)
   const zc=(kind==='aktiv'&&S.c>0)?Math.min(H,2*S.c/(S.gam*sq)):0;
   return {K,infl,P,Ph,Pv,zbar,prof,maxp,W,FSot,FSsl,zc,kind};
 }
@@ -318,6 +319,13 @@ let T={};
 function view(){
   const H=S.H, back=H*1.7, front=S.Bw+1.5;
   let xmin=-front-1, xmax=back+1, ymin=-0.45*H, ymax=H+back*Math.tan(S.beta*D)+1;
+  // a törési ék (csúszólap) terep-metszéspontja — a keret MINDIG fogja be (a terep végig túlér rajta)
+  if(S.state!=='nyugalmi'){
+    const th=(S.state==='aktiv'?(45+S.phi/2):(45-S.phi/2))*D;
+    const denom=Math.tan(th)-Math.tan(S.beta*D);
+    const wx=denom>0.02?Math.min(H/denom,back*1.6):back*1.6; // majdnem párhuzamos ék → korlátozzuk
+    xmax=Math.max(xmax, wx+1.2); ymax=Math.max(ymax, H+wx*Math.tan(S.beta*D)+1);
+  }
   const aspect=SVGW/SVGH; let wM=xmax-xmin, hM=ymax-ymin;
   if(wM/hM>aspect){const nh=wM/aspect,cy=(ymin+ymax)/2;ymin=cy-nh/2;ymax=cy+nh/2;hM=nh;}
   else{const nw=hM*aspect,cx=(xmin+xmax)/2;xmin=cx-nw/2;xmax=cx+nw/2;wM=nw;}
@@ -352,17 +360,38 @@ function draw(res){
     const th=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2))*D;
     // ék a heel (0,0)-tól felfelé-jobbra, a felszínnel metszésig
     let xi=0, yi=0;
-    for(let x=0;x<=xmaxw*1.4;x+=0.05){ const yl=x*Math.tan(th); if(yl>=surfY(x)){xi=x;yi=surfY(x);break;} xi=x;yi=yl; }
+    for(let x=0;x<=T.xmax;x+=0.04){ const yl=x*Math.tan(th); if(yl>=surfY(x)){xi=x;yi=surfY(x);break;} xi=x;yi=yl; }
     g+='<path d="M'+P(0,0).join(' ')+' L'+P(0,H).join(' ')+' L'+P(xi,yi).join(' ')+' Z" fill="'+col+'" fill-opacity="0.12" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3"/>';
+    // csúszólap hajlásszöge a vízszinteshez képest — felirat az ék mentén
+    const thDeg=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2));
+    const mid=P(xi*0.5, yi*0.5), lab='θ = '+thDeg.toFixed(0)+'°';
+    g+='<text x="'+(mid[0]+6).toFixed(1)+'" y="'+(mid[1]-5).toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="600" fill="'+col+'" transform="rotate('+(-thDeg).toFixed(1)+' '+(mid[0]+6).toFixed(1)+' '+(mid[1]-5).toFixed(1)+')">'+lab+'</text>';
+    // szögjel a lábpontnál (0,0): kis ív a vízszintes és a csúszólap közt
+    const r0=Math.min(34, 0.5*Math.hypot(P(xi,yi)[0]-P(0,0)[0],P(xi,yi)[1]-P(0,0)[1]));
+    const o=P(0,0), a1=o[0]+r0, ay1=o[1], a2=o[0]+r0*Math.cos(thDeg*D), ay2=o[1]-r0*Math.sin(thDeg*D);
+    g+='<path d="M'+a1.toFixed(1)+' '+ay1.toFixed(1)+' A'+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+a2.toFixed(1)+' '+ay2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="1.2"/>';
   }
 
   // TÁMFAL (téglalap, hátlap x=0, lábél x=−B) — borulás-animációval a lábél körül
   const toe=P(-B,0);
   const wallPts=[[0,0],[0,H],[-B,H],[-B,0]].map(p=>P(p[0],p[1]));
-  g+='<g transform="rotate('+tipAng.toFixed(2)+' '+toe[0].toFixed(1)+' '+toe[1].toFixed(1)+')">'
-    +'<polygon points="'+wallPts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'" fill="#aab2b7" stroke="#6b7479" stroke-width="1.5"/>'
+  const wallPoly='<polygon points="'+wallPts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')+'"';
+  // halvány eredeti körvonal, ha animál (borulás vagy csúszás)
+  if(Math.abs(tipAng)>0.01||Math.abs(slideOff)>0.001)
+    g+=wallPoly+' fill="none" stroke="#9aa3a8" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>';
+  // a fal: vízszintes elcsúszás (translate, balra) + felborulás (rotate a lábél körül)
+  const sx=(slideOff*T.s).toFixed(1);
+  g+='<g transform="translate('+sx+',0) rotate('+tipAng.toFixed(2)+' '+toe[0].toFixed(1)+' '+toe[1].toFixed(1)+')">'
+    +wallPoly+' fill="#aab2b7" stroke="#6b7479" stroke-width="1.5"/>'
     +'<line x1="'+wallPts[0][0].toFixed(1)+'" y1="'+wallPts[0][1].toFixed(1)+'" x2="'+wallPts[1][0].toFixed(1)+'" y2="'+wallPts[1][1].toFixed(1)+'" stroke="#5a6266" stroke-width="2"/>'
     +'</g>';
+  // elcsúszás közben: csúszási nyíl a talp síkjában (balra) + súrlódás-vonal
+  if(Math.abs(slideOff)>0.001){
+    const by=toe[1], bx0=(toe[0]+wallPts[0][0])/2, bx1=toe[0]-30;
+    g+='<line x1="'+(toe[0]).toFixed(1)+'" y1="'+(by+0.5).toFixed(1)+'" x2="'+(wallPts[0][0]).toFixed(1)+'" y2="'+(by+0.5).toFixed(1)+'" stroke="#a32626" stroke-width="2" stroke-dasharray="3 2"/>';
+    g+='<line x1="'+bx0.toFixed(1)+'" y1="'+(by+9).toFixed(1)+'" x2="'+bx1.toFixed(1)+'" y2="'+(by+9).toFixed(1)+'" stroke="#a32626" stroke-width="2.5"/>';
+    g+='<path d="M'+bx1.toFixed(1)+' '+(by+9).toFixed(1)+' l9 -4.5 l0 9 z" fill="#a32626"/>';
+  }
 
   // talajvíz a háttöltésben
   if(S.dw<H-0.05){
@@ -422,8 +451,10 @@ function update(){
   $("dwV").textContent=S.dw.toFixed(2)+" m";$("gwV").textContent=S.gamW.toFixed(1);
   const res=analyse(); draw(res);
   const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind];
+  const thDeg=res.kind==='aktiv'?(45+S.phi/2):res.kind==='passziv'?(45-S.phi/2):null;
   $("statusBar").innerHTML='<div class="chip">Állapot: <b>'+kn+'</b></div>'
     +'<div class="chip">K = <b>'+res.K.toFixed(3)+'</b></div>'
+    +(thDeg!==null?'<div class="chip">csúszólap θ = <b>'+thDeg.toFixed(0)+'°</b> ('+(res.kind==='aktiv'?'45+φ/2':'45−φ/2')+')</div>':'')
     +'<div class="chip">P = <b>'+res.P.toFixed(0)+' kN/m</b></div>'
     +'<div class="chip">z̄ = <b>'+res.zbar.toFixed(2)+' m</b></div>'
     +(res.zc>0?'<div class="chip">húzott repedés z_c = <b>'+res.zc.toFixed(2)+' m</b></div>':'');
@@ -437,22 +468,32 @@ function update(){
 /* ---------- vezérlők ---------- */
 const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV',dw:'dwV',gamW:'gwV'};
 function sync(){for(const k in fmt)$(k).value=S[k];}
-for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;update();});
-$("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;
+for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;slideOff=0;update();});
+$("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;slideOff=0;
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
 $("methodSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.method=b.dataset.m;
   [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
-$("resetBtn").addEventListener('click',()=>{tipAng=0;Object.assign(S,DEF);sync();
+$("resetBtn").addEventListener('click',()=>{tipAng=0;slideOff=0;Object.assign(S,DEF);sync();
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.s==='aktiv'));
   [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));update();});
 
 /* ---------- felborulás-animáció (a lábél körül) ---------- */
 $("overturnBtn").addEventListener('click',()=>{
-  if(tipRAF)cancelAnimationFrame(tipRAF);
-  const t0=performance.now(),dur=1400,maxA=16; // SVG: pozitív = óramutató szerint → előrebillen a lábélen
+  if(tipRAF)cancelAnimationFrame(tipRAF); if(slideRAF)cancelAnimationFrame(slideRAF); slideOff=0;
+  // a háttöltés a falat a földtől ELFELÉ (balra) löki → a lábél körül KIFELÉ billen.
+  // SVG: a lábél fölötti pont balra mozdul ⇒ NEGATÍV (óramutatóval ellentétes) forgás.
+  const t0=performance.now(),dur=1400,maxA=-17;
   function step(now){const p=Math.min(1,(now-t0)/dur),e=p*p; tipAng=maxA*e; update();
-    if(p<1)tipRAF=requestAnimationFrame(step); else setTimeout(()=>{tipAng=0;update();},700);}
+    if(p<1)tipRAF=requestAnimationFrame(step); else setTimeout(()=>{tipAng=0;update();},800);}
   tipRAF=requestAnimationFrame(step);
+});
+$("slideBtn").addEventListener('click',()=>{
+  if(slideRAF)cancelAnimationFrame(slideRAF); if(tipRAF)cancelAnimationFrame(tipRAF); tipAng=0;
+  // a fal vízszintesen elcsúszik a talp mentén a földtől ELFELÉ (balra, −x), a max ~0,6·B
+  const t0=performance.now(),dur=1300,maxS=-Math.min(0.6*S.Bw,1.5);
+  function step(now){const p=Math.min(1,(now-t0)/dur),e=p*p; slideOff=maxS*e; update();
+    if(p<1)slideRAF=requestAnimationFrame(step); else setTimeout(()=>{slideOff=0;update();},800);}
+  slideRAF=requestAnimationFrame(step);
 });
 
 /* ---------- nav + reveal ---------- */
