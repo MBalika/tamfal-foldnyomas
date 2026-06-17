@@ -166,11 +166,12 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   <div class="eyebrow">3 · Mobilizációs görbe</div>
   <h2>Földnyomás az elmozdulás függvényében</h2>
   <p class="lead">A nyugalmi állapotból (E<sub>0</sub>) kiindulva a&nbsp;fal más-más nyomást ébreszt aszerint, <strong>merre és mennyit mozdul</strong>. Már <strong>kis</strong> elmozdulás a&nbsp;földtől elfelé eléri a&nbsp;minimális <strong>aktív</strong> nyomást (E<sub>a</sub>); a&nbsp;<strong>passzív</strong> maximumhoz (E<sub>p</sub>) viszont nagyságrenddel <strong>nagyobb</strong>, a&nbsp;talaj felé irányuló elmozdulás kell. Húzd a&nbsp;fogantyút az&nbsp;ábrán vagy a&nbsp;csúszkával!</p>
+  <div class="note"><strong>Honnan jönnek a számok?</strong> A&nbsp;három <strong>nyomásszint</strong> (E<sub>a</sub>, E<sub>0</sub>, E<sub>p</sub>) a&nbsp;háromszög-megoszlású eredőből számítva: <span class="nowrap">E = ½·K·γ·H²</span>, ahol K az&nbsp;adott állapot földnyomási együtthatója (K<sub>a</sub>, K<sub>0</sub>, K<sub>p</sub>). A&nbsp;φ′, γ és H értékét lentebb, az&nbsp;<a href="#szimulator">interaktív szimulátorban</a> állítod — ott átállítva ezek a&nbsp;szintek itt is azonnal frissülnek. <em>(Alapbeállítás: H = 6 m, γ = 19 kN/m³, φ′ = 30° → E<sub>a</sub> ≈ 114, E<sub>0</sub> ≈ 171, E<sub>p</sub> ≈ 1026 kN/m.)</em></div>
   <div class="panel">
-    <div class="svg-wrap"><svg id="moveSvg" viewBox="0 0 560 360" role="img" aria-label="Földnyomás–elmozdulás mobilizációs görbe" style="cursor:ew-resize"></svg></div>
+    <div class="svg-wrap"><svg id="moveSvg" viewBox="0 0 560 372" role="img" aria-label="Földnyomás–elmozdulás mobilizációs görbe" style="cursor:ew-resize"></svg></div>
     <div class="ctrl" style="margin-top:1rem;max-width:420px"><label>Fal elmozdulása <span class="val" id="dispV"></span></label><input type="range" id="dispSlider" min="0" max="1000" step="1" value="91"></div>
     <div class="statusbar" id="moveStatus"></div>
-    <div class="note">A&nbsp;szintek (E<sub>a</sub>, E<sub>0</sub>, E<sub>p</sub>) a&nbsp;szimulátor aktuális talajparamétereiből (φ′, γ, H; Rankine, β-val) számítva — víz és felszíni teher nélkül, tájékoztató jelleggel. A&nbsp;passzív oldal eleinte gyorsan, majd lassulva éri el E<sub>p</sub>-t: ≈33% E<sub>p</sub> már 6% x<sub>p</sub>-nél, ≈50% E<sub>p</sub> 14% x<sub>p</sub>-nél.</div>
+    <div class="note"><strong>A&nbsp;vízszintes tengely (elmozdulás) tájékoztató.</strong> x<sub>a</sub> és x<sub>p</sub> az&nbsp;a&nbsp;falelmozdulás, ami az&nbsp;aktív, illetve a&nbsp;passzív határállapot <strong>mozgósításához</strong> kell. Ezek nem ebből a&nbsp;talajból számítva, hanem <strong>tipikus, irodalmi értékek</strong>: x<sub>a</sub> ≈ 0,1–0,4%·H (itt 0,2%·H), x<sub>p</sub> ≈ 1–5%·H, lazább talajnál több (itt 5%·H). Ezért van x<sub>a</sub> közel az&nbsp;origóhoz, x<sub>p</sub> jóval kijjebb: az&nbsp;<strong>aktív állapot apró mozgásra beáll, a&nbsp;passzívhoz sokszoros elmozdulás kell</strong>. A&nbsp;passzív ág eleinte gyorsan, majd lassulva nő: ≈33% E<sub>p</sub> már 6% x<sub>p</sub>-nél, ≈50% E<sub>p</sub> 14% x<sub>p</sub>-nél (szintén tapasztalati pontok).</div>
   </div>
 </section>
 
@@ -512,7 +513,7 @@ $("slideBtn").addEventListener('click',()=>{
 });
 
 /* ---------- mobilizációs görbe: földnyomás az elmozdulás függvényében ---------- */
-const MV={dMin:-0.006,dMax:0.06,xa:0.002,xp:0.05,ML:58,MR:30,MT:22,MB:72,W:560,H:360};
+const MV={dMin:-0.006,dMax:0.06,xa:0.002,xp:0.05,ML:58,MR:30,MT:22,MB:84,W:560,H:372};
 function mvLevels(){const phi=S.phi,beta=S.beta;
   const Ka=KaRankine(phi,beta),K0=Math.max(0,1-Math.sin(phi*D)),Kp=KpRankine(phi,beta);
   const f=0.5*S.gam*S.H*S.H; return {Ka,K0,Kp,Ea:Ka*f,E0:K0*f,Ep:Kp*f,f};}
@@ -534,7 +535,7 @@ function drawMove(){
   // x_a, x_p tickek
   const tick=(d,txt)=>{const x=mvX(d);return '<line x1="'+x.toFixed(1)+'" y1="'+yB.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+(yB+6).toFixed(1)+'" stroke="var(--ink2)" stroke-width="1.2"/>'
      +'<text x="'+x.toFixed(1)+'" y="'+(yB+18).toFixed(1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="middle">'+txt+'</text>';};
-  g+=tick(-MV.xa,'xₐ')+tick(MV.xp,'xₚ');
+  g+=tick(-MV.xa,'xₐ ≈ 0,2%·H')+tick(MV.xp,'xₚ ≈ 5%·H');
   // tengelyek + nyilak
   g+='<line x1="'+MV.ML+'" y1="'+yB.toFixed(1)+'" x2="'+(xR+10)+'" y2="'+yB.toFixed(1)+'" stroke="var(--ink)" stroke-width="1.5"/>'
     +'<path d="M'+(xR+10)+' '+yB.toFixed(1)+' l-7 -4 l0 8 z" fill="var(--ink)"/>'
@@ -553,9 +554,8 @@ function drawMove(){
   // törési határállapot feliratok
   g+='<text x="'+(MV.ML+6)+'" y="'+(mvY(L.Ea,Emax)+14).toFixed(1)+'" '+FB+' font-size="9.5" fill="#c2521f">törési határállapot</text>'
     +'<text x="'+(xR-6)+'" y="'+(mvY(L.Ep,Emax)-6).toFixed(1)+'" '+FB+' font-size="9.5" fill="#2f59c4" text-anchor="end">törési határállapot</text>';
-  // tengely-végfeliratok
-  g+='<text x="'+MV.ML+'" y="'+(MV.H-6)+'" '+FB+' font-size="10" fill="var(--ink3)">◀ aktív (földtől el)</text>'
-    +'<text x="'+(xR+10)+'" y="'+(MV.H-6)+'" '+FB+' font-size="10" fill="var(--ink3)" text-anchor="end">passzív (föld felé) ▶</text>';
+  // tengelyfelirat (a vízszintes tengely tájékoztató jellegű)
+  g+='<text x="'+((MV.ML+xR)/2).toFixed(1)+'" y="'+(yB+36).toFixed(1)+'" '+FB+' font-size="10" fill="var(--ink3)" text-anchor="middle">◀ aktív (földtől el) · elmozdulás (tipikus, irodalmi értékek) · passzív (föld felé) ▶</text>';
   // fogantyú
   const d=mvCurD(), E=mvEmob(d,L), hx=mvX(d), hy=mvY(E,Emax);
   const hcol=d<=-0.0004?'#c2521f':d>=0.0004?'#2f59c4':'#b87514';
