@@ -366,14 +366,14 @@ function draw(res){
     let xi=0, yi=0;
     for(let x=0;x<=T.xmax;x+=0.04){ const yl=x*Math.tan(th); if(yl>=surfY(x)){xi=x;yi=surfY(x);break;} xi=x;yi=yl; }
     g+='<path d="M'+P(0,0).join(' ')+' L'+P(0,H).join(' ')+' L'+P(xi,yi).join(' ')+' Z" fill="'+col+'" fill-opacity="0.12" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3"/>';
-    // csúszólap hajlásszöge a vízszinteshez képest — felirat az ék mentén
+    // csúszólap hajlásszöge a vízszinteshez képest — szögjel ív a lábpontnál (0,0)
     const thDeg=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2));
-    const mid=P(xi*0.5, yi*0.5), lab='θ = '+thDeg.toFixed(0)+'°';
-    g+='<text x="'+(mid[0]+6).toFixed(1)+'" y="'+(mid[1]-5).toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="600" fill="'+col+'" transform="rotate('+(-thDeg).toFixed(1)+' '+(mid[0]+6).toFixed(1)+' '+(mid[1]-5).toFixed(1)+')">'+lab+'</text>';
-    // szögjel a lábpontnál (0,0): kis ív a vízszintes és a csúszólap közt
     const r0=Math.min(34, 0.5*Math.hypot(P(xi,yi)[0]-P(0,0)[0],P(xi,yi)[1]-P(0,0)[1]));
     const o=P(0,0), a1=o[0]+r0, ay1=o[1], a2=o[0]+r0*Math.cos(thDeg*D), ay2=o[1]-r0*Math.sin(thDeg*D);
-    g+='<path d="M'+a1.toFixed(1)+' '+ay1.toFixed(1)+' A'+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+a2.toFixed(1)+' '+ay2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="1.2"/>';
+    g+='<path d="M'+a1.toFixed(1)+' '+ay1.toFixed(1)+' A'+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+a2.toFixed(1)+' '+ay2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="1.4"/>';
+    // θ-felirat a szögjel mellé (a fél-szög irányában, az íven kívül) — vízszintesen, semmi nem takarja
+    const lr=r0+15, lx=o[0]+lr*Math.cos(thDeg/2*D), ly=o[1]-lr*Math.sin(thDeg/2*D);
+    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-family="JetBrains Mono" font-size="11.5" font-weight="700" fill="'+col+'">θ = '+thDeg.toFixed(0)+'°</text>';
   }
 
   // TÁMFAL (téglalap, hátlap x=0, lábél x=−B) — borulás-animációval a lábél körül
