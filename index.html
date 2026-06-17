@@ -119,6 +119,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   <div class="nav-links">
     <a class="nav-link" href="#alap">Alapok</a>
     <a class="nav-link" href="#allapot">Aktív / passzív</a>
+    <a class="nav-link" href="#mozgasgorbe">Mozgásgörbe</a>
     <a class="nav-link" href="#rankine">Rankine</a>
     <a class="nav-link" href="#coulomb">Coulomb</a>
     <a class="nav-link" href="#allekonysag">Állékonyság</a>
@@ -161,8 +162,20 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   </table>
 </section>
 
+<section id="mozgasgorbe" class="reveal">
+  <div class="eyebrow">3 · Mobilizációs görbe</div>
+  <h2>Földnyomás az elmozdulás függvényében</h2>
+  <p class="lead">A nyugalmi állapotból (E<sub>0</sub>) kiindulva a&nbsp;fal más-más nyomást ébreszt aszerint, <strong>merre és mennyit mozdul</strong>. Már <strong>kis</strong> elmozdulás a&nbsp;földtől elfelé eléri a&nbsp;minimális <strong>aktív</strong> nyomást (E<sub>a</sub>); a&nbsp;<strong>passzív</strong> maximumhoz (E<sub>p</sub>) viszont nagyságrenddel <strong>nagyobb</strong>, a&nbsp;talaj felé irányuló elmozdulás kell. Húzd a&nbsp;fogantyút az&nbsp;ábrán vagy a&nbsp;csúszkával!</p>
+  <div class="panel">
+    <div class="svg-wrap"><svg id="moveSvg" viewBox="0 0 560 360" role="img" aria-label="Földnyomás–elmozdulás mobilizációs görbe" style="cursor:ew-resize"></svg></div>
+    <div class="ctrl" style="margin-top:1rem;max-width:420px"><label>Fal elmozdulása <span class="val" id="dispV"></span></label><input type="range" id="dispSlider" min="0" max="1000" step="1" value="91"></div>
+    <div class="statusbar" id="moveStatus"></div>
+    <div class="note">A&nbsp;szintek (E<sub>a</sub>, E<sub>0</sub>, E<sub>p</sub>) a&nbsp;szimulátor aktuális talajparamétereiből (φ′, γ, H; Rankine, β-val) számítva — víz és felszíni teher nélkül, tájékoztató jelleggel. A&nbsp;passzív oldal eleinte gyorsan, majd lassulva éri el E<sub>p</sub>-t: ≈33% E<sub>p</sub> már 6% x<sub>p</sub>-nél, ≈50% E<sub>p</sub> 14% x<sub>p</sub>-nél.</div>
+  </div>
+</section>
+
 <section id="rankine" class="reveal">
-  <div class="eyebrow">3 · Az egyszerűbb</div>
+  <div class="eyebrow">4 · Az egyszerűbb</div>
   <h2>Rankine-elmélet</h2>
   <p class="lead">Rankine feltételezése: <strong>sima, függőleges falhát</strong> (nincs falsúrlódás), és a&nbsp;teljes talajtömeg plasztikus egyensúlyban van. Vízszintes háttöltésre az&nbsp;együtthatók egyszerűek:</p>
   <div class="formula">K<sub>a</sub> = tan²(45° − φ′/2) = (1 − sinφ′) / (1 + sinφ′)<br>K<sub>p</sub> = tan²(45° + φ′/2) = (1 + sinφ′) / (1 − sinφ′)
@@ -172,7 +185,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </section>
 
 <section id="coulomb" class="reveal">
-  <div class="eyebrow">4 · A pontosabb</div>
+  <div class="eyebrow">5 · A pontosabb</div>
   <h2>Coulomb-elmélet</h2>
   <p class="lead">Coulomb figyelembe veszi a&nbsp;<strong>fal és talaj közti súrlódást</strong> (δ), a&nbsp;ferde falhátat és a&nbsp;ferde háttöltést. A&nbsp;törési ék egyensúlyából vezeti le az&nbsp;eredőt. Függőleges falra, β háttöltésre az&nbsp;aktív együttható:</p>
   <div class="formula">K<sub>a</sub> = cos²φ′ / { cosδ · [ 1 + √( sin(φ′+δ)·sin(φ′−β) / (cosδ·cosβ) ) ]² }
@@ -182,7 +195,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </section>
 
 <section id="allekonysag" class="reveal">
-  <div class="eyebrow">5 · Mikor megy tönkre?</div>
+  <div class="eyebrow">6 · Mikor megy tönkre?</div>
   <h2>A súlytámfal állékonysága</h2>
   <p class="lead">Egy súlytámfalnak a&nbsp;földnyomással szemben a&nbsp;<strong>saját súlya</strong> tart ellen. Két fő tönkremeneteli mód:</p>
   <div class="cards">
@@ -193,7 +206,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </section>
 
 <section id="szimulator" class="reveal">
-  <div class="eyebrow">6 · A fő attrakció</div>
+  <div class="eyebrow">7 · A fő attrakció</div>
   <h2>Interaktív földnyomás-szimulátor</h2>
   <p class="lead">Állítsd a&nbsp;fal méreteit és a&nbsp;talaj paramétereit. A&nbsp;<strong>nyomásábra</strong> rárajzolódik a&nbsp;falhátra, az&nbsp;eredő P és a&nbsp;törési ék is látszik, és élőben frissül K, P, valamint a&nbsp;<strong>felborulási és csúszási</strong> biztonsági tényező. Válts az&nbsp;<strong>aktív / nyugalmi / passzív</strong> állapot és a&nbsp;<strong>Rankine / Coulomb</strong> módszer között.</p>
   <div class="panel">
@@ -240,7 +253,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </section>
 
 <section id="kviz" class="reveal">
-  <div class="eyebrow">7 · Tudáspróba</div>
+  <div class="eyebrow">8 · Tudáspróba</div>
   <h2>Kvíz — 12 kérdés</h2>
   <p class="lead">Kevert sorrend, minden válasz után rövid magyarázattal.</p>
   <div class="quiz-box">
@@ -464,6 +477,7 @@ function update(){
     $("fSl").innerHTML=res.FSsl.toFixed(2)+' '+fbadge(res.FSsl); $("fSl").style.color=fcol(res.FSsl);
   } else { $("fOt").textContent='—';$("fOt").style.color='var(--ink3)';$("fSl").textContent='—';$("fSl").style.color='var(--ink3)';
     $("statusBar").innerHTML+='<div class="chip" style="border-color:#e7c4ab;background:#f7e2d5">Állékonyság csak aktív esetben</div>'; }
+  drawMove();
 }
 
 /* ---------- vezérlők ---------- */
@@ -496,6 +510,80 @@ $("slideBtn").addEventListener('click',()=>{
     if(p<1)slideRAF=requestAnimationFrame(step); else setTimeout(()=>{slideOff=0;update();},800);}
   slideRAF=requestAnimationFrame(step);
 });
+
+/* ---------- mobilizációs görbe: földnyomás az elmozdulás függvényében ---------- */
+const MV={dMin:-0.006,dMax:0.06,xa:0.002,xp:0.05,ML:58,MR:30,MT:22,MB:72,W:560,H:360};
+function mvLevels(){const phi=S.phi,beta=S.beta;
+  const Ka=KaRankine(phi,beta),K0=Math.max(0,1-Math.sin(phi*D)),Kp=KpRankine(phi,beta);
+  const f=0.5*S.gam*S.H*S.H; return {Ka,K0,Kp,Ea:Ka*f,E0:K0*f,Ep:Kp*f,f};}
+function mvEmob(d,L){ if(d<=0){const a=-d/MV.xa; return L.Ea+(L.E0-L.Ea)*Math.exp(-3*a);}
+  const b=d/MV.xp,p=Math.pow(b,1.19),g=p/(p+0.145); return L.E0+(L.Ep-L.E0)*g; }
+function mvX(d){return MV.ML+(d-MV.dMin)/(MV.dMax-MV.dMin)*(MV.W-MV.ML-MV.MR);}
+function mvY(E,Emax){return MV.MT+(1-E/Emax)*(MV.H-MV.MT-MV.MB);}
+function mvCurD(){const v=+$("dispSlider").value; return MV.dMin+(v/1000)*(MV.dMax-MV.dMin);}
+function drawMove(){
+  if(!$("moveSvg"))return;
+  const L=mvLevels(), Emax=Math.max(L.Ep*1.08,1), PW=MV.W-MV.ML-MV.MR;
+  const yB=mvY(0,Emax), x0=mvX(0), xR=MV.ML+PW, FB='font-family="JetBrains Mono"';
+  let g='';
+  g+='<rect x="'+MV.ML+'" y="'+MV.MT+'" width="'+PW.toFixed(1)+'" height="'+(yB-MV.MT).toFixed(1)+'" fill="#fff" stroke="var(--line)"/>';
+  // szintvonalak Ep, E0, Ea
+  const lvl=(E,txt,col)=>{const y=mvY(E,Emax);return '<line x1="'+MV.ML+'" y1="'+y.toFixed(1)+'" x2="'+xR.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>'
+     +'<text x="'+(MV.ML+5)+'" y="'+(y-4).toFixed(1)+'" '+FB+' font-size="10.5" font-weight="700" fill="'+col+'">'+txt+' = '+E.toFixed(0)+' kN/m</text>';};
+  g+=lvl(L.Ep,'Eₚ','#2f59c4')+lvl(L.E0,'E₀','#b87514')+lvl(L.Ea,'Eₐ','#c2521f');
+  // zéró (nyugalmi) függőleges
+  g+='<line x1="'+x0.toFixed(1)+'" y1="'+MV.MT+'" x2="'+x0.toFixed(1)+'" y2="'+yB.toFixed(1)+'" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>';
+  // x_a, x_p tickek
+  const tick=(d,txt)=>{const x=mvX(d);return '<line x1="'+x.toFixed(1)+'" y1="'+yB.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+(yB+6).toFixed(1)+'" stroke="var(--ink2)" stroke-width="1.2"/>'
+     +'<text x="'+x.toFixed(1)+'" y="'+(yB+18).toFixed(1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="middle">'+txt+'</text>';};
+  g+=tick(-MV.xa,'xₐ')+tick(MV.xp,'xₚ');
+  // tengelyek + nyilak
+  g+='<line x1="'+MV.ML+'" y1="'+yB.toFixed(1)+'" x2="'+(xR+10)+'" y2="'+yB.toFixed(1)+'" stroke="var(--ink)" stroke-width="1.5"/>'
+    +'<path d="M'+(xR+10)+' '+yB.toFixed(1)+' l-7 -4 l0 8 z" fill="var(--ink)"/>'
+    +'<line x1="'+MV.ML+'" y1="'+yB.toFixed(1)+'" x2="'+MV.ML+'" y2="'+(MV.MT-10)+'" stroke="var(--ink)" stroke-width="1.5"/>'
+    +'<path d="M'+MV.ML+' '+(MV.MT-10)+' l-4 7 l8 0 z" fill="var(--ink)"/>'
+    +'<text x="'+(MV.ML-6)+'" y="'+(MV.MT-1)+'" '+FB+' font-size="10" fill="var(--ink2)" text-anchor="end">E [kN/m]</text>';
+  // görbe
+  let path='';
+  for(let i=0;i<=260;i++){const d=MV.dMin+(MV.dMax-MV.dMin)*i/260; path+=(i?' L':'M')+mvX(d).toFixed(1)+' '+mvY(mvEmob(d,L),Emax).toFixed(1);}
+  g+='<path d="'+path+'" fill="none" stroke="var(--accent)" stroke-width="2.6"/>';
+  // jellemző pontok 6% és 14% x_p
+  const mk=(frac,lab,dy)=>{const d=frac*MV.xp,x=mvX(d),y=mvY(mvEmob(d,L),Emax);
+     return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.4" fill="#2f59c4"/>'
+       +'<text x="'+(x+7).toFixed(1)+'" y="'+(y+dy).toFixed(1)+'" '+FB+' font-size="9.5" fill="#2f59c4">'+lab+'</text>';};
+  g+=mk(0.06,'≈33% Eₚ (6% xₚ)',-5)+mk(0.14,'≈50% Eₚ (14% xₚ)',12);
+  // törési határállapot feliratok
+  g+='<text x="'+(MV.ML+6)+'" y="'+(mvY(L.Ea,Emax)+14).toFixed(1)+'" '+FB+' font-size="9.5" fill="#c2521f">törési határállapot</text>'
+    +'<text x="'+(xR-6)+'" y="'+(mvY(L.Ep,Emax)-6).toFixed(1)+'" '+FB+' font-size="9.5" fill="#2f59c4" text-anchor="end">törési határállapot</text>';
+  // tengely-végfeliratok
+  g+='<text x="'+MV.ML+'" y="'+(MV.H-6)+'" '+FB+' font-size="10" fill="var(--ink3)">◀ aktív (földtől el)</text>'
+    +'<text x="'+(xR+10)+'" y="'+(MV.H-6)+'" '+FB+' font-size="10" fill="var(--ink3)" text-anchor="end">passzív (föld felé) ▶</text>';
+  // fogantyú
+  const d=mvCurD(), E=mvEmob(d,L), hx=mvX(d), hy=mvY(E,Emax);
+  const hcol=d<=-0.0004?'#c2521f':d>=0.0004?'#2f59c4':'#b87514';
+  g+='<line x1="'+hx.toFixed(1)+'" y1="'+hy.toFixed(1)+'" x2="'+hx.toFixed(1)+'" y2="'+yB.toFixed(1)+'" stroke="'+hcol+'" stroke-width="1" stroke-dasharray="3 2"/>'
+    +'<line x1="'+hx.toFixed(1)+'" y1="'+hy.toFixed(1)+'" x2="'+MV.ML+'" y2="'+hy.toFixed(1)+'" stroke="'+hcol+'" stroke-width="1" stroke-dasharray="3 2"/>'
+    +'<circle cx="'+hx.toFixed(1)+'" cy="'+hy.toFixed(1)+'" r="6" fill="'+hcol+'" stroke="#fff" stroke-width="2"/>';
+  $("moveSvg").innerHTML=g;
+  // kijelzés
+  const dmm=d*S.H*1000, pctH=d*100, Kmob=L.f>0?E/L.f:0, pEp=L.Ep>0?E/L.Ep*100:0;
+  const st=d<=-MV.xa?'Aktív határállapot (Eₐ)':d<-0.0004?'Aktív felé mozdul':d>=MV.xp?'Passzív (≈ Eₚ)':d>0.0004?'Passzív felé mozdul':'Nyugalmi (E₀)';
+  $("dispV").textContent=(pctH>=0?'+':'')+pctH.toFixed(2)+'% · H ('+(dmm>=0?'+':'')+dmm.toFixed(1)+' mm)';
+  $("moveStatus").innerHTML='<div class="chip">Állapot: <b>'+st+'</b></div>'
+    +'<div class="chip">elmozdulás <b>'+(dmm>=0?'+':'')+dmm.toFixed(1)+' mm</b></div>'
+    +'<div class="chip">E = <b>'+E.toFixed(0)+' kN/m</b></div>'
+    +'<div class="chip">K<sub>mob</sub> = <b>'+Kmob.toFixed(2)+'</b></div>'
+    +'<div class="chip">E / E<sub>p</sub> = <b>'+pEp.toFixed(0)+'%</b></div>';
+}
+$("dispSlider").addEventListener('input',drawMove);
+(function(){const sv=$("moveSvg"); if(!sv)return; let drag=false;
+  function setFrom(ev){const r=sv.getBoundingClientRect(); const cx=ev.touches?ev.touches[0].clientX:ev.clientX;
+    const xv=(cx-r.left)/r.width*MV.W, d=MV.dMin+(xv-MV.ML)/(MV.W-MV.ML-MV.MR)*(MV.dMax-MV.dMin);
+    const v=Math.round((d-MV.dMin)/(MV.dMax-MV.dMin)*1000); $("dispSlider").value=Math.max(0,Math.min(1000,v)); drawMove();}
+  sv.addEventListener('pointerdown',e=>{drag=true;try{sv.setPointerCapture(e.pointerId);}catch(_){} setFrom(e);});
+  sv.addEventListener('pointermove',e=>{if(drag)setFrom(e);});
+  window.addEventListener('pointerup',()=>{drag=false;});
+})();
 
 /* ---------- nav + reveal ---------- */
 (function(){const links=[...document.querySelectorAll('.nav-link')];
