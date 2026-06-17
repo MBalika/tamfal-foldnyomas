@@ -119,9 +119,9 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   <div class="nav-links">
     <a class="nav-link" href="#alap">Alapok</a>
     <a class="nav-link" href="#allapot">Aktív / passzív</a>
-    <a class="nav-link" href="#mozgasgorbe">Mozgásgörbe</a>
     <a class="nav-link" href="#rankine">Rankine</a>
     <a class="nav-link" href="#coulomb">Coulomb</a>
+    <a class="nav-link" href="#mozgasgorbe">Mozgásgörbe</a>
     <a class="nav-link" href="#allekonysag">Állékonyság</a>
     <a class="nav-link" href="#szimulator">Szimulátor</a>
     <a class="nav-link" href="#kviz">Kvíz</a>
@@ -162,21 +162,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
   </table>
 </section>
 
-<section id="mozgasgorbe" class="reveal">
-  <div class="eyebrow">3 · Mobilizációs görbe</div>
-  <h2>Földnyomás az elmozdulás függvényében</h2>
-  <p class="lead">A nyugalmi állapotból (E<sub>0</sub>) kiindulva a&nbsp;fal más-más nyomást ébreszt aszerint, <strong>merre és mennyit mozdul</strong>. Már <strong>kis</strong> elmozdulás a&nbsp;földtől elfelé eléri a&nbsp;minimális <strong>aktív</strong> nyomást (E<sub>a</sub>); a&nbsp;<strong>passzív</strong> maximumhoz (E<sub>p</sub>) viszont nagyságrenddel <strong>nagyobb</strong>, a&nbsp;talaj felé irányuló elmozdulás kell. Húzd a&nbsp;fogantyút az&nbsp;ábrán vagy a&nbsp;csúszkával!</p>
-  <div class="note"><strong>Honnan jönnek a számok?</strong> A&nbsp;három <strong>nyomásszint</strong> (E<sub>a</sub>, E<sub>0</sub>, E<sub>p</sub>) a&nbsp;háromszög-megoszlású eredőből számítva: <span class="nowrap">E = ½·K·γ·H²</span>, ahol K az&nbsp;adott állapot földnyomási együtthatója (K<sub>a</sub>, K<sub>0</sub>, K<sub>p</sub>). A&nbsp;φ′, γ és H értékét lentebb, az&nbsp;<a href="#szimulator">interaktív szimulátorban</a> állítod — ott átállítva ezek a&nbsp;szintek itt is azonnal frissülnek. <em>(Alapbeállítás: H = 6 m, γ = 19 kN/m³, φ′ = 30° → E<sub>a</sub> ≈ 114, E<sub>0</sub> ≈ 171, E<sub>p</sub> ≈ 1026 kN/m.)</em></div>
-  <div class="panel">
-    <div class="svg-wrap"><svg id="moveSvg" viewBox="0 0 560 372" role="img" aria-label="Földnyomás–elmozdulás mobilizációs görbe" style="cursor:ew-resize"></svg></div>
-    <div class="ctrl" style="margin-top:1rem;max-width:420px"><label>Fal elmozdulása <span class="val" id="dispV"></span></label><input type="range" id="dispSlider" min="0" max="1000" step="1" value="91"></div>
-    <div class="statusbar" id="moveStatus"></div>
-    <div class="note"><strong>A&nbsp;vízszintes tengely (elmozdulás) tájékoztató.</strong> x<sub>a</sub> és x<sub>p</sub> az&nbsp;a&nbsp;falelmozdulás, ami az&nbsp;aktív, illetve a&nbsp;passzív határállapot <strong>mozgósításához</strong> kell. Ezek nem ebből a&nbsp;talajból számítva, hanem <strong>tipikus, irodalmi értékek</strong>: x<sub>a</sub> ≈ 0,1–0,4%·H (itt 0,2%·H), x<sub>p</sub> ≈ 1–5%·H, lazább talajnál több (itt 5%·H). Ezért van x<sub>a</sub> közel az&nbsp;origóhoz, x<sub>p</sub> jóval kijjebb: az&nbsp;<strong>aktív állapot apró mozgásra beáll, a&nbsp;passzívhoz sokszoros elmozdulás kell</strong>. A&nbsp;passzív ág eleinte gyorsan, majd lassulva nő: ≈33% E<sub>p</sub> már 6% x<sub>p</sub>-nél, ≈50% E<sub>p</sub> 14% x<sub>p</sub>-nél (szintén tapasztalati pontok).</div>
-  </div>
-</section>
-
 <section id="rankine" class="reveal">
-  <div class="eyebrow">4 · Az egyszerűbb</div>
+  <div class="eyebrow">3 · Az egyszerűbb</div>
   <h2>Rankine-elmélet</h2>
   <p class="lead">Rankine feltételezése: <strong>sima, függőleges falhát</strong> (nincs falsúrlódás), és a&nbsp;teljes talajtömeg plasztikus egyensúlyban van. Vízszintes háttöltésre az&nbsp;együtthatók egyszerűek:</p>
   <div class="formula">K<sub>a</sub> = tan²(45° − φ′/2) = (1 − sinφ′) / (1 + sinφ′)<br>K<sub>p</sub> = tan²(45° + φ′/2) = (1 + sinφ′) / (1 − sinφ′)
@@ -186,13 +173,26 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 </section>
 
 <section id="coulomb" class="reveal">
-  <div class="eyebrow">5 · A pontosabb</div>
+  <div class="eyebrow">4 · A pontosabb</div>
   <h2>Coulomb-elmélet</h2>
   <p class="lead">Coulomb figyelembe veszi a&nbsp;<strong>fal és talaj közti súrlódást</strong> (δ), a&nbsp;ferde falhátat és a&nbsp;ferde háttöltést. A&nbsp;törési ék egyensúlyából vezeti le az&nbsp;eredőt. Függőleges falra, β háttöltésre az&nbsp;aktív együttható:</p>
   <div class="formula">K<sub>a</sub> = cos²φ′ / { cosδ · [ 1 + √( sin(φ′+δ)·sin(φ′−β) / (cosδ·cosβ) ) ]² }
     <small>Az eredő a&nbsp;falhát normálisához képest δ szöggel hajlik (a&nbsp;falsúrlódás miatt), így van egy <strong>függőleges összetevője</strong> is, ami stabilizál. A&nbsp;falsúrlódás csökkenti az&nbsp;aktív nyomást.</small>
   </div>
   <div class="note warn"><strong>Mikor melyik?</strong> Rankine egyszerű, sima falra jó. Coulomb a&nbsp;falsúrlódással reálisabb (kisebb aktív nyomást ad), ezért súlytámfalaknál gyakran ezt használják. A&nbsp;passzív oldalon a&nbsp;Coulomb nagy δ-nál túlbecsülhet — óvatosan.</div>
+</section>
+
+<section id="mozgasgorbe" class="reveal">
+  <div class="eyebrow">5 · Mobilizációs görbe</div>
+  <h2>Földnyomás az elmozdulás függvényében</h2>
+  <p class="lead">A nyugalmi állapotból (E<sub>0</sub>) kiindulva a&nbsp;fal más-más nyomást ébreszt aszerint, <strong>merre és mennyit mozdul</strong>. Már <strong>kis</strong> elmozdulás a&nbsp;földtől elfelé eléri a&nbsp;minimális <strong>aktív</strong> nyomást (E<sub>a</sub>); a&nbsp;<strong>passzív</strong> maximumhoz (E<sub>p</sub>) viszont nagyságrenddel <strong>nagyobb</strong>, a&nbsp;talaj felé irányuló elmozdulás kell. Húzd a&nbsp;fogantyút az&nbsp;ábrán vagy a&nbsp;csúszkával!</p>
+  <div class="note"><strong>Honnan jönnek a számok?</strong> A&nbsp;három <strong>nyomásszint</strong> (E<sub>a</sub>, E<sub>0</sub>, E<sub>p</sub>) a&nbsp;háromszög-megoszlású eredőből számítva: <span class="nowrap">E = ½·K·γ·H²</span>, ahol K az&nbsp;adott állapot földnyomási együtthatója (K<sub>a</sub>, K<sub>0</sub>, K<sub>p</sub>). A&nbsp;φ′, γ és H értékét lentebb, az&nbsp;<a href="#szimulator">interaktív szimulátorban</a> állítod — ott átállítva ezek a&nbsp;szintek itt is azonnal frissülnek. <em>(Alapbeállítás: H = 6 m, γ = 19 kN/m³, φ′ = 30° → E<sub>a</sub> ≈ 114, E<sub>0</sub> ≈ 171, E<sub>p</sub> ≈ 1026 kN/m.)</em></div>
+  <div class="panel">
+    <div class="svg-wrap"><svg id="moveSvg" viewBox="0 0 560 372" role="img" aria-label="Földnyomás–elmozdulás mobilizációs görbe" style="cursor:ew-resize"></svg></div>
+    <div class="ctrl" style="margin-top:1rem;max-width:420px"><label>Fal elmozdulása <span class="val" id="dispV"></span></label><input type="range" id="dispSlider" min="0" max="1000" step="1" value="91"></div>
+    <div class="statusbar" id="moveStatus"></div>
+    <div class="note"><strong>A&nbsp;vízszintes tengely (elmozdulás) tájékoztató.</strong> x<sub>a</sub> és x<sub>p</sub> az&nbsp;a&nbsp;falelmozdulás, ami az&nbsp;aktív, illetve a&nbsp;passzív határállapot <strong>mozgósításához</strong> kell. Ezek nem ebből a&nbsp;talajból számítva, hanem <strong>tipikus, irodalmi értékek</strong>: x<sub>a</sub> ≈ 0,1–0,4%·H (itt 0,2%·H), x<sub>p</sub> ≈ 1–5%·H, lazább talajnál több (itt 5%·H). Ezért van x<sub>a</sub> közel az&nbsp;origóhoz, x<sub>p</sub> jóval kijjebb: az&nbsp;<strong>aktív állapot apró mozgásra beáll, a&nbsp;passzívhoz sokszoros elmozdulás kell</strong>. A&nbsp;passzív ág eleinte gyorsan, majd lassulva nő: ≈33% E<sub>p</sub> már 6% x<sub>p</sub>-nél, ≈50% E<sub>p</sub> 14% x<sub>p</sub>-nél (szintén tapasztalati pontok).</div>
+  </div>
 </section>
 
 <section id="allekonysag" class="reveal">
