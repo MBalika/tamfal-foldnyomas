@@ -506,8 +506,9 @@ function draw(res){
     const yIntL=H-Ls[0].bot, xlab=Math.min(T.xmax*0.62, S.H*1.15);
     if(Ls[0].bot>0.6){ const p=P(xlab,(yIntL+surfY(xlab))/2);
       g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#6e5d34" text-anchor="middle">1. réteg (felső)</text>'; }
-    if((H-Ls[0].bot)>0.6){ const p=P(xlab,yIntL/2);
-      g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#5a4a28" text-anchor="middle">2. réteg (alsó)</text>'; }
+    // 2. réteg felirat: ha van elég vastag réteg a háttöltésben, oda; egyébként (pl. h1=H) a támfal alatti alapozásba
+    const p2=((H-Ls[0].bot)>0.6)?P(xlab,yIntL/2):P(-B*0.5,-0.24*H);
+    g+='<text x="'+p2[0].toFixed(1)+'" y="'+p2[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#5a4a28" text-anchor="middle">2. réteg (alsó)</text>';
   }
 
   $("simSvg").innerHTML=g;
