@@ -237,15 +237,11 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <button data-m="rankine" aria-pressed="true">Rankine</button>
           <button data-m="coulomb" aria-pressed="false">Coulomb</button>
         </div>
-        <div class="seg" id="layerSeg" role="group" style="margin-bottom:.55rem">
-          <button data-n="1" aria-pressed="false">1 réteg</button>
-          <button data-n="2" aria-pressed="true">2 réteg</button>
-        </div>
         <div class="ctrl-grid">
           <div class="ctrl"><label>Falmagasság H [m] <span class="val" id="hV"></span></label><input type="range" id="H" min="3" max="10" step="0.25"></div>
           <div class="ctrl"><label>Talpszélesség B [m] <span class="val" id="bV"></span></label><input type="range" id="Bw" min="1" max="6" step="0.1"></div>
         </div>
-        <div class="layer-head" id="lay1head">Talaj</div>
+        <div class="layer-head">1. réteg (felső)</div>
         <div class="ctrl-grid">
           <div class="ctrl"><label>φ′ [°] <span class="val" id="phi1V"></span></label><input type="range" id="phi1" min="0" max="40" step="1"></div>
           <div class="ctrl"><label>c′ [kPa] <span class="val" id="c1V"></span></label><input type="range" id="c1" min="0" max="100" step="1"></div>
@@ -269,8 +265,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
       </div>
     </div>
   </div>
-  <div class="note"><strong>Két réteg esetén.</strong> A&nbsp;függőleges feszültség rétegről rétegre halmozódik, a&nbsp;vízszintes nyomás pedig a&nbsp;<strong>helyi réteg</strong> K-jával és kohéziójával számol — ezért a&nbsp;<strong>réteghatárnál a&nbsp;nyomásábra ugrik</strong> (a&nbsp;σ<sub>h</sub> felső és alsó értéke ráírva). Az&nbsp;<strong>eredő P, a&nbsp;támadáspont és a&nbsp;biztonsági tényezők</strong> ebből a&nbsp;rétegzett ábrából, a&nbsp;szokásos eljárással korrektek. A&nbsp;rajzon a&nbsp;<strong>megtört törési ék csak szemléltető</strong>: a&nbsp;rétegenként eltérő szögű (45±φ/2) csúszólapot mutatja, de a&nbsp;rétegzett Coulomb-ék pontos geometriája (a&nbsp;határon megtörő, az&nbsp;ékegyensúlyból adódó valódi felület) ennél összetettebb.</div>
-  <div class="note warn"><strong>Próbáld ki:</strong> vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Növeld a&nbsp;<strong>felszíni terhet</strong> (q) vagy a&nbsp;háttöltés <strong>lejtését</strong> (β) — nő az&nbsp;aktív nyomás. Kapcsolj <strong>2 rétegre</strong>, és állíts erősebb alsó réteget — látszik az&nbsp;ugrás a&nbsp;réteghatárnál. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
+  <div class="note"><strong>A két réteg.</strong> Csak az&nbsp;<strong>1. (felső) réteg vastagságát</strong> (h<sub>1</sub>) választod a&nbsp;terepszinttől — a&nbsp;<strong>2. (alsó) réteg ebből automatikusan adódik</strong>, h<sub>1</sub>-től a&nbsp;talp síkjáig (vastagsága H − h<sub>1</sub>). A&nbsp;függőleges feszültség rétegről rétegre halmozódik, a&nbsp;vízszintes nyomás a&nbsp;<strong>helyi réteg</strong> K-jával és kohéziójával számol — ezért a&nbsp;<strong>réteghatárnál a&nbsp;nyomásábra ugrik</strong> (a&nbsp;σ<sub>h</sub> felső és alsó értéke ráírva). Az&nbsp;<strong>eredő P, a&nbsp;támadáspont és a&nbsp;biztonsági tényezők</strong> ebből a&nbsp;rétegzett ábrából, a&nbsp;szokásos eljárással korrektek. Az&nbsp;<strong>elcsúszás (a&nbsp;talp) mindig a&nbsp;2. rétegen történik</strong> (mivel h<sub>1</sub> legfeljebb a&nbsp;fal magassága lehet). A&nbsp;rajzon a&nbsp;<strong>megtört törési ék csak szemléltető</strong>: a&nbsp;rétegenként eltérő szögű (45±φ/2) csúszólapot mutatja, de a&nbsp;rétegzett Coulomb-ék pontos geometriája ennél összetettebb.</div>
+  <div class="note warn"><strong>Próbáld ki:</strong> húzd a&nbsp;<strong>h<sub>1</sub></strong> csúszkát — a&nbsp;réteghatár és a&nbsp;nyomásábra ugrása vele mozog; állíts <strong>erősebb alsó réteget</strong> (nagyobb φ′<sub>2</sub>), és nézd a&nbsp;különbséget. Vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
 </section>
 
 <section id="kviz" class="reveal">
@@ -303,7 +299,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 (function(){
 "use strict";
 const $=id=>document.getElementById(id), D=Math.PI/180;
-const S={H:6,Bw:3,nLay:2,h1:3,
+const S={H:6,Bw:3,h1:3,
   phi1:30,c1:0,gam1:19, phi2:34,c2:0,gam2:20,
   beta:0,delta:15,q:0,gamW:24,method:'rankine',state:'aktiv'};
 const DEF=Object.assign({},S);
@@ -319,9 +315,7 @@ function KaCoulomb(phi,delta,beta){const p=phi*D,d=delta*D,b=beta*D;
   return Math.cos(p)*Math.cos(p)/(Math.cos(d)*Math.pow(1+t,2));}
 
 /* ---------- rétegmodell ---------- */
-function layers(){ const H=S.H;
-  if(S.nLay===1) return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:H}];
-  const h1=Math.max(0,Math.min(S.h1,H));
+function layers(){ const H=S.H, h1=Math.max(0,Math.min(S.h1,H)); // 1. réteg a terepszinttől h1-ig, 2. réteg onnan a talpig
   return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:h1},
           {phi:S.phi2,c:S.c2,gam:S.gam2,top:h1,bot:H}];
 }
@@ -522,9 +516,6 @@ function draw(res){
 /* ---------- frissítés ---------- */
 function fbadge(F){return F>=1.5?'<span class="fbadge safe">megfelel</span>':F>=1?'<span class="fbadge safe">F≥1</span>':'<span class="fbadge unsafe">F&lt;1</span>';}
 function fcol(F){return F>=1.5?'var(--ok)':F>=1?'var(--rest)':'var(--danger)';}
-function applyLayerVis(){ const two=S.nLay===2;
-  $("layer2wrap").style.display=two?'':'none';
-  $("lay1head").textContent=two?'1. réteg (felső)':'Talaj'; }
 function update(){
   S.h1=Math.max(0,Math.min(S.h1,S.H)); if($("h1"))$("h1").value=S.h1; // h1 ∈ [0, H]
   $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
@@ -562,13 +553,9 @@ $("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
 $("methodSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.method=b.dataset.m;
   [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
-$("layerSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.nLay=+b.dataset.n;tipAng=0;slideOff=0;
-  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));applyLayerVis();update();});
 $("resetBtn").addEventListener('click',()=>{tipAng=0;slideOff=0;Object.assign(S,DEF);sync();
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.s==='aktiv'));
-  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));
-  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.n==='2'));
-  applyLayerVis();update();});
+  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));update();});
 
 /* ---------- felborulás-animáció (a lábél körül) ---------- */
 $("overturnBtn").addEventListener('click',()=>{
@@ -708,7 +695,7 @@ $("dispSlider").addEventListener('input',drawMove);
 })();
 
 /* init */
-sync();applyLayerVis();update();
+sync();update();
 })();
 </script>
 
