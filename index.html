@@ -67,6 +67,7 @@ input[type=range].water{accent-color:var(--water)}
 .ctrl.const label{display:inline-block;margin:0}
 .const-val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap}
 .const-val em{font-style:normal;font-size:11px;color:var(--ink3)}
+.layer-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--ink2);font-weight:700;text-transform:uppercase;margin:.55rem 0 .3rem;padding-top:.5rem;border-top:1px solid var(--line)}
 .ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .9rem}
 .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:.5rem}
 .seg button{flex:1;border:none;background:#fff;padding:7px 4px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:inherit;border-right:1px solid var(--line)}
@@ -236,12 +237,30 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <button data-m="rankine" aria-pressed="true">Rankine</button>
           <button data-m="coulomb" aria-pressed="false">Coulomb</button>
         </div>
+        <div class="seg" id="layerSeg" role="group" style="margin-bottom:.55rem">
+          <button data-n="1" aria-pressed="true">1 réteg</button>
+          <button data-n="2" aria-pressed="false">2 réteg</button>
+        </div>
         <div class="ctrl-grid">
           <div class="ctrl"><label>Falmagasság H [m] <span class="val" id="hV"></span></label><input type="range" id="H" min="3" max="10" step="0.25"></div>
           <div class="ctrl"><label>Talpszélesség B [m] <span class="val" id="bV"></span></label><input type="range" id="Bw" min="1" max="6" step="0.1"></div>
-          <div class="ctrl"><label>φ′ [°] <span class="val" id="phiV"></span></label><input type="range" id="phi" min="0" max="40" step="1"></div>
-          <div class="ctrl"><label>c′ [kPa] <span class="val" id="cV"></span></label><input type="range" id="c" min="0" max="100" step="1"></div>
-          <div class="ctrl"><label>γ talaj [kN/m³] <span class="val" id="gV"></span></label><input type="range" id="gam" min="16" max="21" step="0.5"></div>
+        </div>
+        <div class="layer-head" id="lay1head">Talaj</div>
+        <div class="ctrl-grid">
+          <div class="ctrl"><label>φ′ [°] <span class="val" id="phi1V"></span></label><input type="range" id="phi1" min="0" max="40" step="1"></div>
+          <div class="ctrl"><label>c′ [kPa] <span class="val" id="c1V"></span></label><input type="range" id="c1" min="0" max="100" step="1"></div>
+          <div class="ctrl"><label>γ [kN/m³] <span class="val" id="gam1V"></span></label><input type="range" id="gam1" min="16" max="21" step="0.5"></div>
+        </div>
+        <div id="layer2wrap">
+          <div class="ctrl"><label>Felső réteg vastagsága h<sub>1</sub> [m] <span class="val" id="h1V"></span></label><input type="range" id="h1" min="0.5" max="9.5" step="0.25"></div>
+          <div class="layer-head">2. réteg (alsó)</div>
+          <div class="ctrl-grid">
+            <div class="ctrl"><label>φ′<sub>2</sub> [°] <span class="val" id="phi2V"></span></label><input type="range" id="phi2" min="0" max="40" step="1"></div>
+            <div class="ctrl"><label>c′<sub>2</sub> [kPa] <span class="val" id="c2V"></span></label><input type="range" id="c2" min="0" max="100" step="1"></div>
+            <div class="ctrl"><label>γ<sub>2</sub> [kN/m³] <span class="val" id="gam2V"></span></label><input type="range" id="gam2" min="16" max="21" step="0.5"></div>
+          </div>
+        </div>
+        <div class="ctrl-grid">
           <div class="ctrl"><label>Háttöltés β [°] <span class="val" id="betaV"></span></label><input type="range" id="beta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Falsúrlódás δ [°] <span class="val" id="deltaV"></span></label><input type="range" id="delta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Felszíni teher q [kPa] <span class="val" id="qV"></span></label><input type="range" id="q" min="0" max="40" step="1"></div>
@@ -283,7 +302,9 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 (function(){
 "use strict";
 const $=id=>document.getElementById(id), D=Math.PI/180;
-const S={H:6,Bw:3,phi:30,c:0,gam:19,beta:0,delta:15,q:0,gamW:24,method:'rankine',state:'aktiv'};
+const S={H:6,Bw:3,nLay:1,h1:3,
+  phi1:30,c1:0,gam1:19, phi2:34,c2:0,gam2:20,
+  beta:0,delta:15,q:0,gamW:24,method:'rankine',state:'aktiv'};
 const DEF=Object.assign({},S);
 let tipAng=0, tipRAF=0, slideOff=0, slideRAF=0;
 
@@ -296,35 +317,55 @@ function KaCoulomb(phi,delta,beta){const p=phi*D,d=delta*D,b=beta*D;
   const t=Math.sqrt(Math.max(0, Math.sin(p+d)*Math.sin(p-b)/(Math.cos(d)*Math.cos(b))));
   return Math.cos(p)*Math.cos(p)/(Math.cos(d)*Math.pow(1+t,2));}
 
+/* ---------- rétegmodell ---------- */
+function layers(){ const H=S.H;
+  if(S.nLay===1) return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:H}];
+  const h1=Math.max(0.25,Math.min(S.h1,H-0.25));
+  return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:h1},
+          {phi:S.phi2,c:S.c2,gam:S.gam2,top:h1,bot:H}];
+}
+function layerAt(z,Ls){ for(var i=0;i<Ls.length;i++){ if(z<=Ls[i].bot+1e-9) return Ls[i]; } return Ls[Ls.length-1]; }
+function Kof(phi,kind){ if(kind==='nyugalmi')return 1-Math.sin(phi*D);
+  if(kind==='passziv')return KpRankine(phi,S.beta);
+  return S.method==='coulomb'?KaCoulomb(phi,S.delta,S.beta):KaRankine(phi,S.beta); }
+
+/* ---------- nyomásprofil egy adott állapotra (rétegzett, σv halmozódik) ---------- */
+function computeState(kind,qv){ qv=(qv===undefined?S.q:qv);
+  const H=S.H,n=200,dz=H/n,Ls=layers(); let P=0,Mb=0,prof=[],maxp=0,svTop=qv;
+  for(let i=0;i<n;i++){ const z=(i+0.5)*dz, L=layerAt(z,Ls), svMid=svTop+L.gam*dz/2;
+    const K=Kof(L.phi,kind), sq=Math.sqrt(Math.max(K,1e-6));
+    let sh = kind==='passziv'? K*svMid+2*L.c*sq : kind==='nyugalmi'? K*svMid : K*svMid-2*L.c*sq;
+    if(kind==='aktiv'&&sh<0) sh=0;
+    prof.push({z,sh,tot:sh}); if(sh>maxp)maxp=sh;
+    P+=sh*dz; Mb+=sh*(H-z)*dz; svTop+=L.gam*dz; }
+  return {P,Mb,prof,maxp,zbar:P>0?Mb/P:H/3};
+}
+
+/* ---------- törési ék (rétegenként kinkelt csúszólap, a sarokponttól) ---------- */
+function wedgeLine(kind){ if(kind==='nyugalmi')return null;
+  const Ls=layers(),H=S.H,tb=Math.tan(S.beta*D); let pts=[[0,0]],x=0,y=0;
+  for(let li=Ls.length-1; li>=0; li--){ const L=Ls[li];
+    const th=(kind==='aktiv'?(45+L.phi/2):(45-L.phi/2))*D, t=Math.tan(th), c0=y-t*x;
+    const Xs=(t-tb>1e-4)?Math.min((H-c0)/(t-tb), x+H*3):x+H*3, Ys=H+Xs*tb;
+    if(li===0){ pts.push([Xs,Ys]); break; }
+    const yTop=H-L.top, Xt=(yTop-c0)/t;
+    if(Xs<=Xt){ pts.push([Xs,Ys]); break; }
+    pts.push([Xt,yTop]); x=Xt; y=yTop; }
+  return pts;
+}
+
 /* ---------- elemzés ---------- */
-function analyse(){
-  const H=S.H, n=140, dz=H/n;
-  let K, infl, kind=S.state;
-  if(kind==='nyugalmi'){ K=1-Math.sin(S.phi*D); infl=0; }
-  else if(kind==='passziv'){ K=KpRankine(S.phi,S.beta); infl=(S.method==='coulomb')?S.delta:S.beta; }
-  else { K=(S.method==='coulomb')?KaCoulomb(S.phi,S.delta,S.beta):KaRankine(S.phi,S.beta); infl=(S.method==='coulomb')?S.delta:S.beta; }
-  let P=0, Mb=0, prof=[], maxp=0;
-  const sq=Math.sqrt(Math.max(K,1e-6));
-  for(let i=0;i<n;i++){
-    const z=(i+0.5)*dz;
-    const sv=S.q + S.gam*z; // függőleges feszültség (talajvíz nélkül)
-    let sh;
-    if(kind==='passziv') sh=K*sv + 2*S.c*sq;
-    else if(kind==='nyugalmi') sh=K*sv;
-    else sh=K*sv - 2*S.c*sq;
-    if(kind==='aktiv'&&sh<0) sh=0;          // húzott repedés
-    const tot=sh;                            // nincs víznyomás
-    prof.push({z,sh,u:0,tot}); if(tot>maxp)maxp=tot;
-    P+=tot*dz; Mb+=tot*(H-z)*dz;
-  }
-  const zbar=P>0?Mb/P:H/3;
-  // állékonyság (aktív tervezési eset)
-  const W=S.gamW*S.Bw*H, Ph=P*Math.cos(infl*D), Pv=P*Math.sin(infl*D);
-  const Mot=Ph*zbar, Mres=W*(S.Bw/2)+Pv*S.Bw;
-  const FSot=Mot>0?Mres/Mot:99;
-  const FSsl=Ph>0?((W+Pv)*Math.tan(S.phi*D)+S.c*S.Bw)/Ph:99; // talpsúrlódás + talpadhézió (c·B)
-  const zc=(kind==='aktiv'&&S.c>0)?Math.min(H,2*S.c/(S.gam*sq)):0;
-  return {K,infl,P,Ph,Pv,zbar,prof,maxp,W,FSot,FSsl,zc,kind};
+function analyse(){ const kind=S.state, Ls=layers(), H=S.H;
+  const r=computeState(kind);
+  const Ks=Ls.map(L=>Kof(L.phi,kind));
+  const infl=(kind==='nyugalmi')?0:(S.method==='coulomb'?S.delta:S.beta);
+  const Ph=r.P*Math.cos(infl*D), Pv=r.P*Math.sin(infl*D), W=S.gamW*S.Bw*H;
+  const Mot=Ph*r.zbar, Mres=W*(S.Bw/2)+Pv*S.Bw, FSot=Mot>0?Mres/Mot:99;
+  const base=Ls[Ls.length-1]; // talp alatti (legalsó) réteg
+  const FSsl=Ph>0?((W+Pv)*Math.tan(base.phi*D)+base.c*S.Bw)/Ph:99;
+  const topL=Ls[0], Ka1=Kof(topL.phi,'aktiv'), sq1=Math.sqrt(Math.max(Ka1,1e-6));
+  const zc=(kind==='aktiv'&&topL.c>0)?Math.min(topL.bot,2*topL.c/(topL.gam*sq1)):0;
+  return {kind,infl,P:r.P,Ph,Pv,zbar:r.zbar,prof:r.prof,maxp:r.maxp,W,FSot,FSsl,zc,Ks,Ls};
 }
 
 /* ---------- vetítés ---------- */
@@ -335,10 +376,9 @@ function view(){
   let xmin=-front-1, xmax=back+1, ymin=-0.45*H, ymax=H+back*Math.tan(S.beta*D)+1;
   // a törési ék (csúszólap) terep-metszéspontja — a keret MINDIG fogja be (a terep végig túlér rajta)
   if(S.state!=='nyugalmi'){
-    const th=(S.state==='aktiv'?(45+S.phi/2):(45-S.phi/2))*D;
-    const denom=Math.tan(th)-Math.tan(S.beta*D);
-    const wx=denom>0.02?Math.min(H/denom,back*1.6):back*1.6; // majdnem párhuzamos ék → korlátozzuk
-    xmax=Math.max(xmax, wx+1.2); ymax=Math.max(ymax, H+wx*Math.tan(S.beta*D)+1);
+    const pts=wedgeLine(S.state), last=pts[pts.length-1];
+    const wx=Math.min(last[0], back*1.8);
+    xmax=Math.max(xmax, wx+1.2); ymax=Math.max(ymax, Math.min(last[1], H+back*1.8*Math.tan(S.beta*D))+1);
   }
   const aspect=SVGW/SVGH; let wM=xmax-xmin, hM=ymax-ymin;
   if(wM/hM>aspect){const nh=wM/aspect,cy=(ymin+ymax)/2;ymin=cy-nh/2;ymax=cy+nh/2;hM=nh;}
@@ -361,29 +401,43 @@ function draw(res){
     +' L'+P(farL,ymin).join(' ')+' Z" fill="#e3d9c6"/>';
   // alapozási réteg az egész szélességben (y<0)
   g+='<rect x="0" y="'+P(0,0)[1].toFixed(1)+'" width="'+SVGW+'" height="'+(SVGH-P(0,0)[1]).toFixed(1)+'" fill="#ddd2bb"/>';
-  // háttöltés (x>=0, felszín alatt)
+  // háttöltés (x>=0): egy vagy két réteg
+  const Ls=res.Ls;
   let bf='M'+P(0,0).join(' ');
   for(let x=0;x<=farR;x+=0.3) bf+=' L'+P(x,surfY(x)).join(' ');
   bf+=' L'+P(farR,0).join(' ')+' Z';
-  g+='<path d="'+bf+'" fill="#e3d9c6" stroke="#b9a888" stroke-width="1"/>';
+  if(Ls.length===2){
+    const yInt=H-Ls[0].bot; // réteghatár y-ben (a talptól)
+    g+='<path d="M'+P(0,0).join(' ')+' L'+P(0,yInt).join(' ')+' L'+P(farR,yInt).join(' ')+' L'+P(farR,0).join(' ')+' Z" fill="#d2c09e"/>'; // alsó réteg
+    let tf='M'+P(0,yInt).join(' ');
+    for(let x=0;x<=farR;x+=0.3) tf+=' L'+P(x,surfY(x)).join(' ');
+    tf+=' L'+P(farR,yInt).join(' ')+' Z';
+    g+='<path d="'+tf+'" fill="#e3d9c6"/>'; // felső réteg
+    g+='<path d="'+bf+'" fill="none" stroke="#b9a888" stroke-width="1"/>';
+    const yi=P(0,yInt)[1].toFixed(1);
+    g+='<line x1="'+P(0,yInt)[0].toFixed(1)+'" y1="'+yi+'" x2="'+P(farR,yInt)[0].toFixed(1)+'" y2="'+yi+'" stroke="#9c875a" stroke-width="1.4" stroke-dasharray="6 3"/>';
+    g+='<text x="'+(P(farR,yInt)[0]-4).toFixed(1)+'" y="'+(P(0,yInt)[1]-4).toFixed(1)+'" font-family="JetBrains Mono" font-size="9.5" fill="#7a6a42" text-anchor="end">réteghatár (h₁='+Ls[0].bot.toFixed(2)+' m)</text>';
+  } else {
+    g+='<path d="'+bf+'" fill="#e3d9c6" stroke="#b9a888" stroke-width="1"/>';
+  }
   // felszín előtér (bal, fal előtt) y=0
   g+='<line x1="'+P(farL,0)[0].toFixed(1)+'" y1="'+P(farL,0)[1].toFixed(1)+'" x2="'+P(-B,0)[0].toFixed(1)+'" y2="'+P(-B,0)[1].toFixed(1)+'" stroke="#8c7a55" stroke-width="1.5"/>';
 
-  // törési ék (aktív 45+φ/2, passzív 45−φ/2) a sarokponttól (0,0) a felszínig
+  // törési ék — rétegenként kinkelt csúszólap a sarokponttól (0,0) a felszínig
   if(res.kind!=='nyugalmi'){
-    const th=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2))*D;
-    // ék a heel (0,0)-tól felfelé-jobbra, a felszínnel metszésig
-    let xi=0, yi=0;
-    for(let x=0;x<=T.xmax;x+=0.04){ const yl=x*Math.tan(th); if(yl>=surfY(x)){xi=x;yi=surfY(x);break;} xi=x;yi=yl; }
-    g+='<path d="M'+P(0,0).join(' ')+' L'+P(0,H).join(' ')+' L'+P(xi,yi).join(' ')+' Z" fill="'+col+'" fill-opacity="0.12" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3"/>';
-    // csúszólap hajlásszöge a vízszinteshez képest — szögjel ív a lábpontnál (0,0)
-    const thDeg=(res.kind==='aktiv'?(45+S.phi/2):(45-S.phi/2));
-    const r0=Math.min(34, 0.5*Math.hypot(P(xi,yi)[0]-P(0,0)[0],P(xi,yi)[1]-P(0,0)[1]));
-    const o=P(0,0), a1=o[0]+r0, ay1=o[1], a2=o[0]+r0*Math.cos(thDeg*D), ay2=o[1]-r0*Math.sin(thDeg*D);
-    g+='<path d="M'+a1.toFixed(1)+' '+ay1.toFixed(1)+' A'+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+a2.toFixed(1)+' '+ay2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="1.4"/>';
-    // θ-felirat a szögjel mellé (a fél-szög irányában, az íven kívül) — vízszintesen, semmi nem takarja
+    const pts=wedgeLine(res.kind); // [[0,0],...,[Xvég,Yvég]]
+    let wp='M'+P(0,0).join(' ')+' L'+P(0,H).join(' ');
+    for(let i=pts.length-1;i>=0;i--) wp+=' L'+P(pts[i][0],pts[i][1]).join(' ');
+    wp+=' Z';
+    g+='<path d="'+wp+'" fill="'+col+'" fill-opacity="0.12" stroke="'+col+'" stroke-width="1" stroke-dasharray="4 3"/>';
+    // szögjel + θ-felirat a lábpontnál — a heelből induló (legalsó réteg) szöge
+    const baseL=res.Ls[res.Ls.length-1], thDeg=(res.kind==='aktiv'?(45+baseL.phi/2):(45-baseL.phi/2));
+    const p1=P(pts[1][0],pts[1][1]), o=P(0,0);
+    const r0=Math.min(34, 0.5*Math.hypot(p1[0]-o[0],p1[1]-o[1]));
+    const a1=o[0]+r0, a2=o[0]+r0*Math.cos(thDeg*D), ay2=o[1]-r0*Math.sin(thDeg*D);
+    g+='<path d="M'+a1.toFixed(1)+' '+o[1].toFixed(1)+' A'+r0.toFixed(1)+' '+r0.toFixed(1)+' 0 0 0 '+a2.toFixed(1)+' '+ay2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="1.4"/>';
     const lr=r0+15, lx=o[0]+lr*Math.cos(thDeg/2*D), ly=o[1]-lr*Math.sin(thDeg/2*D);
-    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-family="JetBrains Mono" font-size="11.5" font-weight="700" fill="'+col+'">θ = '+thDeg.toFixed(0)+'°</text>';
+    g+='<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-family="JetBrains Mono" font-size="11.5" font-weight="700" fill="'+col+'">θ'+(res.Ls.length===2?'₂':'')+' = '+thDeg.toFixed(0)+'°</text>';
   }
 
   // TÁMFAL (téglalap, hátlap x=0, lábél x=−B) — borulás-animációval a lábél körül
@@ -444,16 +498,26 @@ function draw(res){
 /* ---------- frissítés ---------- */
 function fbadge(F){return F>=1.5?'<span class="fbadge safe">megfelel</span>':F>=1?'<span class="fbadge safe">F≥1</span>':'<span class="fbadge unsafe">F&lt;1</span>';}
 function fcol(F){return F>=1.5?'var(--ok)':F>=1?'var(--rest)':'var(--danger)';}
+function applyLayerVis(){ const two=S.nLay===2;
+  $("layer2wrap").style.display=two?'':'none';
+  $("lay1head").textContent=two?'1. réteg (felső)':'Talaj'; }
 function update(){
+  S.h1=Math.max(0.5,Math.min(S.h1,S.H-0.5)); if($("h1"))$("h1").value=S.h1; // h1 a falmagassághoz kötve
   $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
-  $("phiV").textContent=S.phi+"°";$("cV").textContent=S.c+" kPa";$("gV").textContent=S.gam.toFixed(1);
+  $("phi1V").textContent=S.phi1+"°";$("c1V").textContent=S.c1+" kPa";$("gam1V").textContent=S.gam1.toFixed(1);
+  $("phi2V").textContent=S.phi2+"°";$("c2V").textContent=S.c2+" kPa";$("gam2V").textContent=S.gam2.toFixed(1);
+  $("h1V").textContent=S.h1.toFixed(2)+" m";
   $("betaV").textContent=S.beta+"°";$("deltaV").textContent=S.delta+"°";$("qV").textContent=S.q+" kPa";
   const res=analyse(); draw(res);
-  const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind];
-  const thDeg=res.kind==='aktiv'?(45+S.phi/2):res.kind==='passziv'?(45-S.phi/2):null;
+  const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind], two=res.Ls.length===2;
+  const kchip = two? 'K₁ = <b>'+res.Ks[0].toFixed(3)+'</b> · K₂ = <b>'+res.Ks[1].toFixed(3)+'</b>'
+                   : 'K = <b>'+res.Ks[0].toFixed(3)+'</b>';
+  let thchip='';
+  if(res.kind!=='nyugalmi'){ const thd=L=>(res.kind==='aktiv'?(45+L.phi/2):(45-L.phi/2));
+    thchip = two? '<div class="chip">θ₁ = <b>'+thd(res.Ls[0]).toFixed(0)+'°</b> · θ₂ = <b>'+thd(res.Ls[1]).toFixed(0)+'°</b></div>'
+                : '<div class="chip">csúszólap θ = <b>'+thd(res.Ls[0]).toFixed(0)+'°</b></div>'; }
   $("statusBar").innerHTML='<div class="chip">Állapot: <b>'+kn+'</b></div>'
-    +'<div class="chip">K = <b>'+res.K.toFixed(3)+'</b></div>'
-    +(thDeg!==null?'<div class="chip">csúszólap θ = <b>'+thDeg.toFixed(0)+'°</b> ('+(res.kind==='aktiv'?'45+φ/2':'45−φ/2')+')</div>':'')
+    +'<div class="chip">'+kchip+'</div>'+thchip
     +'<div class="chip">P = <b>'+res.P.toFixed(0)+' kN/m</b></div>'
     +'<div class="chip">z̄ = <b>'+res.zbar.toFixed(2)+' m</b></div>'
     +(res.zc>0?'<div class="chip">húzott repedés z_c = <b>'+res.zc.toFixed(2)+' m</b></div>':'');
@@ -466,16 +530,20 @@ function update(){
 }
 
 /* ---------- vezérlők ---------- */
-const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV'};
+const fmt={H:'hV',Bw:'bV',phi1:'phi1V',c1:'c1V',gam1:'gam1V',phi2:'phi2V',c2:'c2V',gam2:'gam2V',h1:'h1V',beta:'betaV',delta:'deltaV',q:'qV'};
 function sync(){for(const k in fmt)$(k).value=S[k];}
 for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;slideOff=0;update();});
 $("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;slideOff=0;
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
 $("methodSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.method=b.dataset.m;
   [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));update();});
+$("layerSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.nLay=+b.dataset.n;tipAng=0;slideOff=0;
+  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x===b));applyLayerVis();update();});
 $("resetBtn").addEventListener('click',()=>{tipAng=0;slideOff=0;Object.assign(S,DEF);sync();
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.s==='aktiv'));
-  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));update();});
+  [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));
+  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.n==='1'));
+  applyLayerVis();update();});
 
 /* ---------- felborulás-animáció (a lábél körül) ---------- */
 $("overturnBtn").addEventListener('click',()=>{
@@ -498,9 +566,10 @@ $("slideBtn").addEventListener('click',()=>{
 
 /* ---------- mobilizációs görbe: földnyomás az elmozdulás függvényében ---------- */
 const MV={dMin:-0.006,dMax:0.06,xa:0.002,xp:0.05,ML:58,MR:30,MT:22,MB:84,W:560,H:372};
-function mvLevels(){const phi=S.phi,beta=S.beta;
-  const Ka=KaRankine(phi,beta),K0=Math.max(0,1-Math.sin(phi*D)),Kp=KpRankine(phi,beta);
-  const f=0.5*S.gam*S.H*S.H; return {Ka,K0,Kp,Ea:Ka*f,E0:K0*f,Ep:Kp*f,f};}
+function mvLevels(){
+  const Ea=computeState('aktiv',0).P, E0=computeState('nyugalmi',0).P, Ep=computeState('passziv',0).P;
+  const Ls=layers(),H=S.H; let g=0; for(const L of Ls) g+=L.gam*(L.bot-L.top); const gavg=g/H;
+  const f=0.5*gavg*H*H; return {Ea,E0,Ep,f};}
 function mvEmob(d,L){ if(d<=0){const a=-d/MV.xa; return L.Ea+(L.E0-L.Ea)*Math.exp(-3*a);}
   const b=d/MV.xp,p=Math.pow(b,1.19),g=p/(p+0.145); return L.E0+(L.Ep-L.E0)*g; }
 function mvX(d){return MV.ML+(d-MV.dMin)/(MV.dMax-MV.dMin)*(MV.W-MV.ML-MV.MR);}
@@ -614,7 +683,7 @@ $("dispSlider").addEventListener('input',drawMove);
 })();
 
 /* init */
-sync();update();
+sync();applyLayerVis();update();
 })();
 </script>
 
