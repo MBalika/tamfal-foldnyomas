@@ -252,8 +252,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <div class="ctrl"><label>γ [kN/m³] <span class="val" id="gam1V"></span></label><input type="range" id="gam1" min="16" max="21" step="0.5"></div>
         </div>
         <div id="layer2wrap">
-          <div class="ctrl"><label>Felső réteg vastagsága h<sub>1</sub> [m] <span class="val" id="h1V"></span></label><input type="range" id="h1" min="0.5" max="9.5" step="0.25"></div>
-          <div class="layer-head">2. réteg (alsó)</div>
+          <div class="ctrl"><label>1. réteg (felső) vastagsága h<sub>1</sub> [m] · 0…H <span class="val" id="h1V"></span></label><input type="range" id="h1" min="0" max="10" step="0.25"></div>
+          <div class="layer-head" id="lay2head">2. réteg (alsó)</div>
           <div class="ctrl-grid">
             <div class="ctrl"><label>φ′<sub>2</sub> [°] <span class="val" id="phi2V"></span></label><input type="range" id="phi2" min="0" max="40" step="1"></div>
             <div class="ctrl"><label>c′<sub>2</sub> [kPa] <span class="val" id="c2V"></span></label><input type="range" id="c2" min="0" max="100" step="1"></div>
@@ -269,7 +269,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
       </div>
     </div>
   </div>
-  <div class="note warn"><strong>Próbáld ki:</strong> vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Növeld a&nbsp;<strong>felszíni terhet</strong> (q) vagy a&nbsp;háttöltés <strong>lejtését</strong> (β) — nő az&nbsp;aktív nyomás. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
+  <div class="note"><strong>Két réteg esetén.</strong> A&nbsp;függőleges feszültség rétegről rétegre halmozódik, a&nbsp;vízszintes nyomás pedig a&nbsp;<strong>helyi réteg</strong> K-jával és kohéziójával számol — ezért a&nbsp;<strong>réteghatárnál a&nbsp;nyomásábra ugrik</strong> (a&nbsp;σ<sub>h</sub> felső és alsó értéke ráírva). Az&nbsp;<strong>eredő P, a&nbsp;támadáspont és a&nbsp;biztonsági tényezők</strong> ebből a&nbsp;rétegzett ábrából, a&nbsp;szokásos eljárással korrektek. A&nbsp;rajzon a&nbsp;<strong>megtört törési ék csak szemléltető</strong>: a&nbsp;rétegenként eltérő szögű (45±φ/2) csúszólapot mutatja, de a&nbsp;rétegzett Coulomb-ék pontos geometriája (a&nbsp;határon megtörő, az&nbsp;ékegyensúlyból adódó valódi felület) ennél összetettebb.</div>
+  <div class="note warn"><strong>Próbáld ki:</strong> vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Növeld a&nbsp;<strong>felszíni terhet</strong> (q) vagy a&nbsp;háttöltés <strong>lejtését</strong> (β) — nő az&nbsp;aktív nyomás. Kapcsolj <strong>2 rétegre</strong>, és állíts erősebb alsó réteget — látszik az&nbsp;ugrás a&nbsp;réteghatárnál. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
 </section>
 
 <section id="kviz" class="reveal">
@@ -320,7 +321,7 @@ function KaCoulomb(phi,delta,beta){const p=phi*D,d=delta*D,b=beta*D;
 /* ---------- rétegmodell ---------- */
 function layers(){ const H=S.H;
   if(S.nLay===1) return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:H}];
-  const h1=Math.max(0.25,Math.min(S.h1,H-0.25));
+  const h1=Math.max(0,Math.min(S.h1,H));
   return [{phi:S.phi1,c:S.c1,gam:S.gam1,top:0,bot:h1},
           {phi:S.phi2,c:S.c2,gam:S.gam2,top:h1,bot:H}];
 }
@@ -477,6 +478,20 @@ function draw(res){
   for(const s of res.prof){ const yy=H-s.z; pp+=' L'+P(s.tot*sc, yy).join(' '); }
   pp+=' L'+P(0,0).join(' ')+' Z';
   g+='<path d="'+pp+'" fill="'+col+'" fill-opacity="0.32" stroke="'+col+'" stroke-width="1.5"/>';
+  // réteghatárnál a σh UGRÁS értékei (felső réteg alja → alsó réteg teteje)
+  if(Ls.length===2){
+    const h1=Ls[0].bot, yI=H-h1, svI=S.q+Ls[0].gam*h1; // σv a réteghatáron
+    const Kt=res.Ks[0], Kb=res.Ks[1], sqT=Math.sqrt(Math.max(Kt,1e-6)), sqB=Math.sqrt(Math.max(Kb,1e-6));
+    let shT,shB;
+    if(res.kind==='passziv'){ shT=Kt*svI+2*Ls[0].c*sqT; shB=Kb*svI+2*Ls[1].c*sqB; }
+    else if(res.kind==='nyugalmi'){ shT=Kt*svI; shB=Kb*svI; }
+    else { shT=Math.max(0,Kt*svI-2*Ls[0].c*sqT); shB=Math.max(0,Kb*svI-2*Ls[1].c*sqB); }
+    const pT=P(shT*sc,yI), pB=P(shB*sc,yI);
+    g+='<line x1="'+pT[0].toFixed(1)+'" y1="'+pT[1].toFixed(1)+'" x2="'+pB[0].toFixed(1)+'" y2="'+pB[1].toFixed(1)+'" stroke="'+col+'" stroke-width="2"/>'; // az ugrás (vízszintes lépcső)
+    g+='<circle cx="'+pT[0].toFixed(1)+'" cy="'+pT[1].toFixed(1)+'" r="2.8" fill="'+col+'"/><circle cx="'+pB[0].toFixed(1)+'" cy="'+pB[1].toFixed(1)+'" r="2.8" fill="'+col+'"/>';
+    g+='<text x="'+(pT[0]+5).toFixed(1)+'" y="'+(pT[1]-3).toFixed(1)+'" font-family="JetBrains Mono" font-size="9.5" font-weight="600" fill="'+col+'">σₕ felső = '+shT.toFixed(0)+' kPa</text>';
+    g+='<text x="'+(pB[0]+5).toFixed(1)+'" y="'+(pB[1]+11).toFixed(1)+'" font-family="JetBrains Mono" font-size="9.5" font-weight="600" fill="'+col+'">σₕ alsó = '+shB.toFixed(0)+' kPa</text>';
+  }
   // eredő P nyíl a z̄ magasságban, a falba mutatva (infl szöggel)
   const yr=res.zbar, tail=P(res.maxp*sc*0.62, yr), head=P(0,yr);
   g+='<line x1="'+tail[0].toFixed(1)+'" y1="'+tail[1].toFixed(1)+'" x2="'+head[0].toFixed(1)+'" y2="'+head[1].toFixed(1)+'" stroke="'+col+'" stroke-width="3"/>';
@@ -492,6 +507,15 @@ function draw(res){
   g+='<circle cx="'+toe[0].toFixed(1)+'" cy="'+toe[1].toFixed(1)+'" r="3.5" fill="#0d272b"/>';
   g+='<text x="'+(toe[0]-4).toFixed(1)+'" y="'+(toe[1]+14).toFixed(1)+'" font-family="JetBrains Mono" font-size="9.5" fill="#34514f" text-anchor="end">lábél</text>';
 
+  // rétegek megnevezése a háttöltésben (mindenek fölött), ha 2 réteg
+  if(Ls.length===2){
+    const yIntL=H-Ls[0].bot, xlab=Math.min(T.xmax*0.62, S.H*1.15);
+    if(Ls[0].bot>0.6){ const p=P(xlab,(yIntL+surfY(xlab))/2);
+      g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#6e5d34" text-anchor="middle">1. réteg (felső)</text>'; }
+    if((H-Ls[0].bot)>0.6){ const p=P(xlab,yIntL/2);
+      g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#5a4a28" text-anchor="middle">2. réteg (alsó)</text>'; }
+  }
+
   $("simSvg").innerHTML=g;
 }
 
@@ -502,11 +526,12 @@ function applyLayerVis(){ const two=S.nLay===2;
   $("layer2wrap").style.display=two?'':'none';
   $("lay1head").textContent=two?'1. réteg (felső)':'Talaj'; }
 function update(){
-  S.h1=Math.max(0.5,Math.min(S.h1,S.H-0.5)); if($("h1"))$("h1").value=S.h1; // h1 a falmagassághoz kötve
+  S.h1=Math.max(0,Math.min(S.h1,S.H)); if($("h1"))$("h1").value=S.h1; // h1 ∈ [0, H]
   $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
   $("phi1V").textContent=S.phi1+"°";$("c1V").textContent=S.c1+" kPa";$("gam1V").textContent=S.gam1.toFixed(1);
   $("phi2V").textContent=S.phi2+"°";$("c2V").textContent=S.c2+" kPa";$("gam2V").textContent=S.gam2.toFixed(1);
   $("h1V").textContent=S.h1.toFixed(2)+" m";
+  if($("lay2head"))$("lay2head").textContent="2. réteg (alsó) · vastagság "+(S.H-S.h1).toFixed(2)+" m";
   $("betaV").textContent=S.beta+"°";$("deltaV").textContent=S.delta+"°";$("qV").textContent=S.q+" kPa";
   const res=analyse(); draw(res);
   const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind], two=res.Ls.length===2;
