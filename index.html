@@ -393,9 +393,9 @@ function draw(res){
   const farR=T.xmax+1, farL=T.xmin-1;
   // talaj poligon: bal oldali előtér + alap + háttöltés
   g+='<path d="M'+P(farL,0).join(' ')+' L'+P(-B,0).join(' ')+' L'+P(-B,0).join(' ')
-    +' L'+P(farL,ymin).join(' ')+' Z" fill="#e3d9c6"/>';
-  // alapozási réteg az egész szélességben (y<0)
-  g+='<rect x="0" y="'+P(0,0)[1].toFixed(1)+'" width="'+SVGW+'" height="'+(SVGH-P(0,0)[1]).toFixed(1)+'" fill="#ddd2bb"/>';
+    +' L'+P(farL,ymin).join(' ')+' Z" fill="#d2c09e"/>';
+  // alapozási talaj az egész szélességben (y<0) = 2. réteg (a támfal alatt is végig ez a szín)
+  g+='<rect x="0" y="'+P(0,0)[1].toFixed(1)+'" width="'+SVGW+'" height="'+(SVGH-P(0,0)[1]).toFixed(1)+'" fill="#d2c09e"/>';
   // háttöltés (x>=0): egy vagy két réteg
   const Ls=res.Ls;
   let bf='M'+P(0,0).join(' ');
