@@ -506,9 +506,12 @@ function draw(res){
     const yIntL=H-Ls[0].bot, xlab=Math.min(T.xmax*0.62, S.H*1.15);
     if(Ls[0].bot>0.6){ const p=P(xlab,(yIntL+surfY(xlab))/2);
       g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#6e5d34" text-anchor="middle">1. réteg (felső)</text>'; }
-    // 2. réteg felirat: ha van elég vastag réteg a háttöltésben, oda; egyébként (pl. h1=H) a támfal alatti alapozásba
-    const p2=((H-Ls[0].bot)>0.6)?P(xlab,yIntL/2):P(-B*0.5,-0.24*H);
+    // 2. réteg felirat MINDIG a támfal alatti alapozásba (a 2. réteg ott mindig jelen van, h1=H esetén is)
+    const p2=P(-B*0.55,-0.30*H);
     g+='<text x="'+p2[0].toFixed(1)+'" y="'+p2[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#5a4a28" text-anchor="middle">2. réteg (alsó)</text>';
+    // ha a háttöltésben is van vastag 2. réteg, ott is jelöljük
+    if((H-Ls[0].bot)>1.4){ const p3=P(xlab,yIntL*0.5);
+      g+='<text x="'+p3[0].toFixed(1)+'" y="'+p3[1].toFixed(1)+'" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#5a4a28" text-anchor="middle">2. réteg (alsó)</text>'; }
   }
 
   $("simSvg").innerHTML=g;
