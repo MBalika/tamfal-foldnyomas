@@ -238,8 +238,8 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <button data-m="coulomb" aria-pressed="false">Coulomb</button>
         </div>
         <div class="seg" id="layerSeg" role="group" style="margin-bottom:.55rem">
-          <button data-n="1" aria-pressed="true">1 réteg</button>
-          <button data-n="2" aria-pressed="false">2 réteg</button>
+          <button data-n="1" aria-pressed="false">1 réteg</button>
+          <button data-n="2" aria-pressed="true">2 réteg</button>
         </div>
         <div class="ctrl-grid">
           <div class="ctrl"><label>Falmagasság H [m] <span class="val" id="hV"></span></label><input type="range" id="H" min="3" max="10" step="0.25"></div>
@@ -303,7 +303,7 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 (function(){
 "use strict";
 const $=id=>document.getElementById(id), D=Math.PI/180;
-const S={H:6,Bw:3,nLay:1,h1:3,
+const S={H:6,Bw:3,nLay:2,h1:3,
   phi1:30,c1:0,gam1:19, phi2:34,c2:0,gam2:20,
   beta:0,delta:15,q:0,gamW:24,method:'rankine',state:'aktiv'};
 const DEF=Object.assign({},S);
@@ -567,7 +567,7 @@ $("layerSeg").addEventListener('click',e=>{const b=e.target.closest('button');if
 $("resetBtn").addEventListener('click',()=>{tipAng=0;slideOff=0;Object.assign(S,DEF);sync();
   [...$("stateSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.s==='aktiv'));
   [...$("methodSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.m==='rankine'));
-  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.n==='1'));
+  [...$("layerSeg").children].forEach(x=>x.setAttribute('aria-pressed',x.dataset.n==='2'));
   applyLayerVis();update();});
 
 /* ---------- felborulás-animáció (a lábél körül) ---------- */
