@@ -244,13 +244,12 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
           <div class="ctrl"><label>Háttöltés β [°] <span class="val" id="betaV"></span></label><input type="range" id="beta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Falsúrlódás δ [°] <span class="val" id="deltaV"></span></label><input type="range" id="delta" min="0" max="25" step="1"></div>
           <div class="ctrl"><label>Felszíni teher q [kPa] <span class="val" id="qV"></span></label><input type="range" id="q" min="0" max="40" step="1"></div>
-          <div class="ctrl"><label>Talajvíz mélys. d<sub>w</sub> [m] <span class="val" id="dwV"></span></label><input class="water" type="range" id="dw" min="0" max="10" step="0.25"></div>
           <div class="ctrl const"><label>Fal γ<sub>beton</sub></label><span class="const-val">24 kN/m³ <em>(állandó)</em></span></div>
         </div>
       </div>
     </div>
   </div>
-  <div class="note warn"><strong>Próbáld ki:</strong> told a&nbsp;<strong>talajvizet</strong> a&nbsp;felszínhez (kis d<sub>w</sub>) — a&nbsp;víznyomás megugrik, és a&nbsp;biztonsági tényezők leesnek. Vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
+  <div class="note warn"><strong>Próbáld ki:</strong> vékonyítsd a&nbsp;<strong>talpat</strong> (B) — előbb a&nbsp;felborulás bukik. Növeld a&nbsp;<strong>felszíni terhet</strong> (q) vagy a&nbsp;háttöltés <strong>lejtését</strong> (β) — nő az&nbsp;aktív nyomás. Válts <strong>Coulomb</strong>-ra nagy δ-val — az&nbsp;aktív nyomás csökken.</div>
 </section>
 
 <section id="kviz" class="reveal">
@@ -276,14 +275,14 @@ footer{max-width:1040px;margin:3rem auto 0;padding:2rem 1.5rem 3rem;border-top:1
 
 </main>
 <footer>
-  Súlytámfal földnyomás — Rankine & Coulomb · interaktív tananyag · Talajmechanika · oktatási célra. A&nbsp;szimulátor egyszerűsített (merev gravitációs fal, egyréteges háttöltés, hidrosztatikus víz); valós tervezés: MSZ EN 1997 (EC7).
+  Súlytámfal földnyomás — Rankine & Coulomb · interaktív tananyag · Talajmechanika · oktatási célra. A&nbsp;szimulátor egyszerűsített (merev gravitációs fal, egyréteges háttöltés, talajvíz nélkül); valós tervezés: MSZ EN 1997 (EC7).
 </footer>
 
 <script>
 (function(){
 "use strict";
-const $=id=>document.getElementById(id), D=Math.PI/180, GW=9.81;
-const S={H:6,Bw:3,phi:30,c:0,gam:19,beta:0,delta:15,q:0,dw:10,gamW:24,method:'rankine',state:'aktiv'};
+const $=id=>document.getElementById(id), D=Math.PI/180;
+const S={H:6,Bw:3,phi:30,c:0,gam:19,beta:0,delta:15,q:0,gamW:24,method:'rankine',state:'aktiv'};
 const DEF=Object.assign({},S);
 let tipAng=0, tipRAF=0, slideOff=0, slideRAF=0;
 
@@ -307,15 +306,14 @@ function analyse(){
   const sq=Math.sqrt(Math.max(K,1e-6));
   for(let i=0;i<n;i++){
     const z=(i+0.5)*dz;
-    const sv=S.q + S.gam*Math.min(z,S.dw) + Math.max(0,S.gam-GW)*Math.max(0,z-S.dw); // effektív függőleges
+    const sv=S.q + S.gam*z; // függőleges feszültség (talajvíz nélkül)
     let sh;
     if(kind==='passziv') sh=K*sv + 2*S.c*sq;
     else if(kind==='nyugalmi') sh=K*sv;
     else sh=K*sv - 2*S.c*sq;
     if(kind==='aktiv'&&sh<0) sh=0;          // húzott repedés
-    const u=GW*Math.max(0,z-S.dw);
-    const tot=sh+u;
-    prof.push({z,sh,u,tot}); if(tot>maxp)maxp=tot;
+    const tot=sh;                            // nincs víznyomás
+    prof.push({z,sh,u:0,tot}); if(tot>maxp)maxp=tot;
     P+=tot*dz; Mb+=tot*(H-z)*dz;
   }
   const zbar=P>0?Mb/P:H/3;
@@ -408,14 +406,6 @@ function draw(res){
     g+='<path d="M'+bx1.toFixed(1)+' '+(by+9).toFixed(1)+' l9 -4.5 l0 9 z" fill="#a32626"/>';
   }
 
-  // talajvíz a háttöltésben
-  if(S.dw<H-0.05){
-    const ywl=H-S.dw; // vízszint magassága a talptól (z=dw a tetőtől)
-    g+='<line x1="'+P(0,ywl)[0].toFixed(1)+'" y1="'+P(0,ywl)[1].toFixed(1)+'" x2="'+P(farR,ywl)[0].toFixed(1)+'" y2="'+P(0,ywl)[1].toFixed(1)+'" stroke="#1b6fae" stroke-width="1.4" stroke-dasharray="5 4"/>';
-    g+='<path d="M'+(P(0.3*1,ywl)[0]+6).toFixed(1)+' '+(P(0,ywl)[1]-7).toFixed(1)+' l9 0 l-4.5 7 z" fill="#1b6fae"/>';
-    g+='<text x="'+(P(0,ywl)[0]+24).toFixed(1)+'" y="'+(P(0,ywl)[1]-4).toFixed(1)+'" font-family="JetBrains Mono" font-size="10" fill="#1b6fae">talajvíz d_w='+S.dw.toFixed(1)+' m</text>';
-  }
-
   // felszíni teher q nyilai a háttöltésen
   if(S.q>0){
     const x0=0.2, x1=Math.min(xmaxw, S.H*1.4);
@@ -432,12 +422,6 @@ function draw(res){
   for(const s of res.prof){ const yy=H-s.z; pp+=' L'+P(s.tot*sc, yy).join(' '); }
   pp+=' L'+P(0,0).join(' ')+' Z';
   g+='<path d="'+pp+'" fill="'+col+'" fill-opacity="0.32" stroke="'+col+'" stroke-width="1.5"/>';
-  // víznyomás-rész (kék) külön, ha van
-  if(S.dw<H){
-    let wp='', started=false;
-    for(const s of res.prof){ if(s.u>0){ const yy=H-s.z; if(!started){wp='M'+P(0,yy).join(' ');started=true;} wp+=' L'+P(s.u*sc,yy).join(' '); } }
-    if(started){ wp+=' L'+P(0,0).join(' ')+' Z'; g+='<path d="'+wp+'" fill="#1b6fae" fill-opacity="0.30" stroke="#1b6fae" stroke-width="1"/>'; }
-  }
   // eredő P nyíl a z̄ magasságban, a falba mutatva (infl szöggel)
   const yr=res.zbar, tail=P(res.maxp*sc*0.62, yr), head=P(0,yr);
   g+='<line x1="'+tail[0].toFixed(1)+'" y1="'+tail[1].toFixed(1)+'" x2="'+head[0].toFixed(1)+'" y2="'+head[1].toFixed(1)+'" stroke="'+col+'" stroke-width="3"/>';
@@ -463,7 +447,6 @@ function update(){
   $("hV").textContent=S.H.toFixed(2)+" m";$("bV").textContent=S.Bw.toFixed(1)+" m";
   $("phiV").textContent=S.phi+"°";$("cV").textContent=S.c+" kPa";$("gV").textContent=S.gam.toFixed(1);
   $("betaV").textContent=S.beta+"°";$("deltaV").textContent=S.delta+"°";$("qV").textContent=S.q+" kPa";
-  $("dwV").textContent=S.dw.toFixed(2)+" m";
   const res=analyse(); draw(res);
   const kn={aktiv:'Aktív',nyugalmi:'Nyugalmi',passziv:'Passzív'}[res.kind];
   const thDeg=res.kind==='aktiv'?(45+S.phi/2):res.kind==='passziv'?(45-S.phi/2):null;
@@ -482,7 +465,7 @@ function update(){
 }
 
 /* ---------- vezérlők ---------- */
-const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV',dw:'dwV'};
+const fmt={H:'hV',Bw:'bV',phi:'phiV',c:'cV',gam:'gV',beta:'betaV',delta:'deltaV',q:'qV'};
 function sync(){for(const k in fmt)$(k).value=S[k];}
 for(const k in fmt) $(k).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);tipAng=0;slideOff=0;update();});
 $("stateSeg").addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.state=b.dataset.s;tipAng=0;slideOff=0;
